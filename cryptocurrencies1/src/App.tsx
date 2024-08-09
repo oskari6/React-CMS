@@ -16,6 +16,7 @@ import {
 import { Line } from "react-chartjs-2";
 import type { ChartData, ChartOptions } from "chart.js";
 import moment from "moment";
+import Heading from "./components/heading";
 
 ChartJS.register(
   CategoryScale,
@@ -106,7 +107,11 @@ function App() {
   }, [selected, range]);
   return (
     <>
+    <div className="outer-wrapper">
+    <Heading />
+    <div className="content-wrapper">
       <div className="App">
+        <div className="chart-container">
         <select
           onChange={(e) => {
             const c = cryptos?.find((x) => x.id === e.target.value);
@@ -134,13 +139,18 @@ function App() {
           <option value="7">7 Days</option>
           <option value="1">1 Day</option>
         </select>
-      </div>
+      
       {selected ? <CryptoSummary crypto={selected} /> : null}
       {data ? (
         <div style={{ width: 600 }}>
           <Line options={options} data={data} />
         </div>
+        
       ) : null}
+      </div>
+      </div>
+      </div>
+      </div>
     </>
   );
 }

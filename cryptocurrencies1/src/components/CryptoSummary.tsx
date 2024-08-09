@@ -5,6 +5,5 @@ export type AppProps = {
 };
 
 export default function CryptoSummary({ crypto }: AppProps): JSX.Element {
-  //returning jsx element
   return <p>{crypto.name + " $" + crypto.current_price}</p>;
 }

@@ -1,0 +1,46 @@
+h1{
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+}
+
+.centered-chart{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.App{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    min-height:100vh;
+    flex-direction: column;
+}
+
+.chart-container{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:20px;
+}
+.outer-wrapper{
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+    background-color: rgb(212, 211, 211);
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.content-wrapper{
+    background-color: white;
+    padding: 20px;
+    margin: auto;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+    max-width: 1200px;
+    width: 100%;
+    box-sizing: border-box;
+    flex-grow: 1;
+}
+
