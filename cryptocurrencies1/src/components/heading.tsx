@@ -1,5 +1,5 @@
-export default function Heading(){
-    return <h1 className="centered">Crypto currencies</h1>
+export default function Heading() {
+  return <h1 className="heading-layout">[website name]</h1>;
 }
 
 export {};
