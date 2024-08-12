@@ -5,6 +5,7 @@ import { Chart as ChartJS, Tooltip, Legend, ArcElement } from "chart.js";
 import { Pie } from "react-chartjs-2";
 import type { ChartData } from "chart.js";
 import PortfolioSummary from "../components/PortfolioSummary";
+import CoingeckoLimit from "../components/CoingeckoLimit";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -13,14 +14,20 @@ export default function Portfolio() {
   const [selected, setSelected] = useState<Crypto[]>([]);
 
   const [data, setData] = useState<ChartData<"pie">>();
-
+  const [requestError, setRequestError] = useState(false);
   useEffect(() => {
     const url =
       "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparklines=false";
-    axios.get(url).then((response) => {
-      setCryptos(response.data);
-    });
-  }, []);
+    axios
+      .get(url)
+      .then((response) => {
+        setCryptos(response.data);
+      })
+      .catch((error) => {
+        setRequestError(true);
+        console.log("error caught: ", error);
+      });
+  }, [setRequestError]);
 
   useEffect(() => {
     console.log("SELECTED", selected);
@@ -62,54 +69,62 @@ export default function Portfolio() {
       setSelected(temp);
     }
   }
+
+  if (requestError) {
+    return <CoingeckoLimit />;
+  }
+
   return (
-    <div className="portfolio-container">
-      <div>
-        <select
-          onChange={(e) => {
-            const c = cryptos?.find((x) => x.id === e.target.value) as Crypto;
-            setSelected([...selected, c]);
-          }}
-          defaultValue="default"
-        >
-          <option value="default">Choose an option</option>
-          {cryptos
-            ? cryptos.map((crypto) => {
-                return (
-                  <option key={crypto.id} value={crypto.id}>
-                    {crypto.name}
-                  </option>
-                );
-              })
-            : null}
-        </select>
+    <div className="main-content">
+      <h1>Cryptocurrency Portfolio 📄</h1>
+      <div className="portfolio-container">
+        <div>
+          <select
+            onChange={(e) => {
+              const c = cryptos?.find((x) => x.id === e.target.value) as Crypto;
+              setSelected([...selected, c]);
+            }}
+            defaultValue="default"
+          >
+            <option value="default">Choose an option</option>
+            {cryptos
+              ? cryptos.map((crypto) => {
+                  return (
+                    <option key={crypto.id} value={crypto.id}>
+                      {crypto.name}
+                    </option>
+                  );
+                })
+              : null}
+          </select>
         </div>
 
-      {selected.map((s) => {
-        return <PortfolioSummary crypto={s} updateOwned={updateOwned} />;
-      })}
-      {data ? (
-        <div style={{ width: 350 }}>
-          <Pie data={data} />
-        </div>
-      ) : null}
-      {selected
-        ? "Your portfolio is worth: $" +
-          selected
-            .map((s) => {
-              if (isNaN(s.owned)) {
-                return 0;
-              }
-              return s.current_price * s.owned;
-            })
-            .reduce((prev, current) => {
-              return prev + current;
-            }, 0)
-            .toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }) //add all together
-        : null}
-        </div>
+        {selected.map((s) => {
+          return <PortfolioSummary crypto={s} updateOwned={updateOwned} />;
+        })}
+        {data ? (
+          <div style={{ width: 350 }}>
+            <Pie data={data} />
+          </div>
+        ) : null}
+        {selected
+          ? "Your portfolio is worth: $" +
+            selected
+              .map((s) => {
+                if (isNaN(s.owned)) {
+                  return 0;
+                }
+                return s.current_price * s.owned;
+              })
+              .reduce((prev, current) => {
+                return prev + current;
+              }, 0)
+              .toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }) //add all together
+          : null}
+      </div>
+    </div>
   );
 }

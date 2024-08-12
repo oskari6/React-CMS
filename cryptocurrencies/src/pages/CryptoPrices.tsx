@@ -120,41 +120,44 @@ export default function CyptoPrices() {
   }
 
   return (
-    <div className="chart-container">
-      <select
-        onChange={(e) => {
-          const c = cryptos?.find((x) => x.id === e.target.value);
-          setSelected(c);
-        }}
-        defaultValue="default"
-      >
-        <option value="default">Choose an option</option>
-        {cryptos
-          ? cryptos.map((crypto) => {
-              return (
-                <option key={crypto.id} value={crypto.id}>
-                  {crypto.name}
-                </option>
-              );
-            })
-          : null}
-      </select>
-      <select
-        onChange={(e) => {
-          setRange(e.target.value);
-        }}
-      >
-        <option value="30">30 Days</option>
-        <option value="7">7 Days</option>
-        <option value="1">1 Day</option>
-      </select>
+    <div className="main-content">
+      <h1>Cryptoprices 💸</h1>
+      <div className="chart-container">
+        <select
+          onChange={(e) => {
+            const c = cryptos?.find((x) => x.id === e.target.value);
+            setSelected(c);
+          }}
+          defaultValue="default"
+        >
+          <option value="default">Choose an option</option>
+          {cryptos
+            ? cryptos.map((crypto) => {
+                return (
+                  <option key={crypto.id} value={crypto.id}>
+                    {crypto.name}
+                  </option>
+                );
+              })
+            : null}
+        </select>
+        <select
+          onChange={(e) => {
+            setRange(e.target.value);
+          }}
+        >
+          <option value="30">30 Days</option>
+          <option value="7">7 Days</option>
+          <option value="1">1 Day</option>
+        </select>
 
-      {selected ? <CryptoSummary crypto={selected} /> : null}
-      {data ? (
-        <div style={{ width: 600 }}>
-          <Line options={options} data={data} />
-        </div>
-      ) : null}
+        {selected ? <CryptoSummary crypto={selected} /> : null}
+        {data ? (
+          <div style={{ width: 600 }}>
+            <Line options={options} data={data} />
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

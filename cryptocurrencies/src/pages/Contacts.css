@@ -1,0 +1,24 @@
+ul.custom-list {
+  list-style-type: none; /* Remove default bullet points */
+  padding-left: 0; /* Remove default padding */
+}
+li {
+  padding: 10px;
+}
+
+.text-container {
+  height: 400px;
+  max-width: 600px; /* Adjust this to fit your content width */
+  margin: 0 auto; /* Center the container horizontally */
+  text-align: center; /* Center the headline */
+}
+
+.centered-headline {
+  text-align: center; /* Ensure the headline is centered */
+  font-weight: bold;
+}
+
+.left-aligned-paragraph {
+  text-align: left; /* Left-align the paragraph text */
+  margin-top: 10px; /* Add some space between the headline and paragraph */
+}
