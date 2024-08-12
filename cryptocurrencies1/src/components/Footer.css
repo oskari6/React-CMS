@@ -1,7 +1,8 @@
 .footer {
   background-color: #ababab;
   color: #000000;
-  padding: 40px 0;
+  padding: 15px 0;
+  height: 200px;
 }
 
 .footer-container {
@@ -16,7 +17,7 @@
 .footer-social,
 .footer-contact {
   flex: 1;
-  margin: 20px;
+  margin: 10px;
 }
 
 .footer-links h3,
@@ -58,7 +59,10 @@
 }
 
 .footer-bottom {
-  text-align: center;
-  padding-top: 20px;
+  text-align:center;
   border-top: 1px solid #999999;
+}
+
+footer p {
+  margin: 0;
 }

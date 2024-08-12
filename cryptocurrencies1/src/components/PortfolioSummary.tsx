@@ -6,7 +6,7 @@ export type AppProps = {
   updateOwned: (crypto: Crypto, amount: number) => void;
 };
 
-export default function CryptoSummary({ crypto, updateOwned }: AppProps): JSX.Element {
+export default function PortfolioSummary({ crypto, updateOwned }: AppProps): JSX.Element {
   useEffect(() => {
     console.log(crypto.name, amount, crypto.current_price * amount);
   });

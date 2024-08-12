@@ -5,14 +5,15 @@ import About from "./pages/About";
 import Contacts from "./pages/Contacts";
 import CryptoPrices from "./pages/CryptoPrices";
 import Footer from "./components/Footer";
-import Heading from "./components/Heading";
 import Incomplete from "./pages/Incomplete";
+import Heading from "./components/Heading";
+import Portfolio from "./pages/Portfolio";
 
 function App() {
   return (
     <>
       <div className="outer-wrapper">
-        <Heading />
+        <Heading/>
         <Router>
           <NavBar />
           <Routes>
@@ -20,6 +21,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/cryptoprices" element={<CryptoPrices />} />
+            <Route path="/portfolio" element={<Portfolio />} />
             <Route path="/incomplete" element={<Incomplete />} />
           </Routes>
         </Router>

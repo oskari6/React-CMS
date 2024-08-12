@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import "./NavBar.css";
 
@@ -17,6 +16,9 @@ export default function NavBar() {
         </li>
         <li>
           <Link to="/cryptoprices">Cryptoprices</Link>
+        </li>
+        <li>
+          <Link to="/portfolio">Portfolio</Link>
         </li>
         <li>
           <Link to="/incomplete">Incomplete</Link>

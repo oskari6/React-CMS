@@ -121,7 +121,6 @@ export default function CyptoPrices() {
 
   return (
     <div className="chart-container">
-      {/*here?*/}
       <select
         onChange={(e) => {
           const c = cryptos?.find((x) => x.id === e.target.value);

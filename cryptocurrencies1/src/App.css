@@ -48,6 +48,12 @@ h1 {
   align-items: center;
   gap: 20px;
 }
+.portfolio-container{
+  display: flex;
+  flex-direction: column; /* Arrange children vertically */
+  justify-content: center; /* Center children vertically */
+  align-items: center; /* Center children horizontally */
+}
 .outer-wrapper {
   font-family: verdana;
   display: flex;

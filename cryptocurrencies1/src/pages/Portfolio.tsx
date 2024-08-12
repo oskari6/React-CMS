@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react";
-import "./App.css";
 import axios from "axios";
-import CryptoSummary from "./components/CryptoSummary";
-import { Crypto } from "./Types";
+import { Crypto } from "../Types";
 import { Chart as ChartJS, Tooltip, Legend, ArcElement } from "chart.js";
 import { Pie } from "react-chartjs-2";
-import type { ChartData, ChartOptions } from "chart.js";
+import type { ChartData } from "chart.js";
+import PortfolioSummary from "../components/PortfolioSummary";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-function App() {
+export default function Portfolio() {
   const [cryptos, setCryptos] = useState<Crypto[] | null>(null); //return array of crypto or null
   const [selected, setSelected] = useState<Crypto[]>([]);
 
@@ -64,8 +63,8 @@ function App() {
     }
   }
   return (
-    <>
-      <div className="App">
+    <div className="portfolio-container">
+      <div>
         <select
           onChange={(e) => {
             const c = cryptos?.find((x) => x.id === e.target.value) as Crypto;
@@ -84,13 +83,13 @@ function App() {
               })
             : null}
         </select>
-      </div>
+        </div>
 
       {selected.map((s) => {
-        return <CryptoSummary crypto={s} updateOwned={updateOwned} />;
+        return <PortfolioSummary crypto={s} updateOwned={updateOwned} />;
       })}
       {data ? (
-        <div style={{ width: 600 }}>
+        <div style={{ width: 350 }}>
           <Pie data={data} />
         </div>
       ) : null}
@@ -111,8 +110,6 @@ function App() {
               maximumFractionDigits: 2,
             }) //add all together
         : null}
-    </>
+        </div>
   );
 }
-
-export default App;
