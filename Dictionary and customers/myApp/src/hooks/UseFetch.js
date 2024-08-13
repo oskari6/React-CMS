@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
+//custom hook
 export default function useFetch(url, { method, headers, body } = {}) {
   const [data, setData] = useState(); //if objects is undefined, assign default property empty {}
   const [errorStatus, setErrorStatus] = useState();

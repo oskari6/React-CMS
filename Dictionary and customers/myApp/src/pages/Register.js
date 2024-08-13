@@ -16,7 +16,7 @@ export default function Register() {
     localStorage.clear();
     setLoggedIn(false);
   }, []);
-  
+
   function login(e) {
     e.preventDefault();
     const url = baseUrl + "/api/register/";
@@ -47,8 +47,12 @@ export default function Register() {
   }
 
   return (
-    <form className="m-2 w-full max-w-sm" id="customer" onSubmit={login}>
-            <div className="md:flex md:items-center mb-6">
+    <form
+      className="m-2 w-full max-w-sm mx-auto mt-20 flex flex-col items-center justify-center"
+      id="customer"
+      onSubmit={login}
+    >
+      <div className="md:flex md:items-center mb-6">
         <div className="md:w-1/4">
           <label for="email">Email</label>
         </div>

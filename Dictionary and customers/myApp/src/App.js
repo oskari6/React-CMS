@@ -43,12 +43,15 @@ function App() {
     refreshTokens();
     setInterval(refreshTokens, minute * 3); //adjust refresh time
   }, []);
+
   function changeLoggedIn(value) {
-    setLoggedIn(false);
     if (value === false) {
       localStorage.clear();
+      setLoggedIn(false);
+    } else {
+      setLoggedIn(true);
     }
-  } //when wou useState to other functions, name doesnt matter, it can be setLoggedIn over changeLoggedIn. just a variable name
+  }
 
   return (
     <LoginContext.Provider value={[loggedIn, changeLoggedIn]}>

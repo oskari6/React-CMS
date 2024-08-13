@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { baseUrl } from "../Shared";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LoginContext } from "../App";
@@ -11,36 +11,46 @@ export default function Login() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  function login(e) {
+  async function login(e) {
     e.preventDefault();
     const url = baseUrl + "/api/token/";
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: username,
-        password: password,
-      }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.access && data.refresh) {
         localStorage.setItem("access", data.access); //save credentials to local storage
         localStorage.setItem("refresh", data.refresh);
         setLoggedIn(true);
+        console.log("Login succeesful, Logged In Status:", loggedIn);
         navigate(
           location?.state?.previousUrl
             ? location.state.previousUrl
             : "/customers"
         );
-      });
+      } else {
+        console.error("Login failed: ", data);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
   }
-
   return (
-    <form className="m-2 w-full max-w-sm" id="customer" onSubmit={login}>
+    <form
+      className="m-2 w-full max-w-sm mx-auto mt-20 flex flex-col items-center justify-center"
+      id="customer"
+      onSubmit={login}
+    >
       <div className="md:flex md:items-center mb-6">
         <div className="md:w-1/4">
           <label for="username">Username</label>

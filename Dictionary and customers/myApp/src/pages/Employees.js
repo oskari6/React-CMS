@@ -70,7 +70,7 @@ function Employees() {
 
   const showEmployees = true;
   return (
-    <div className="">
+    <div>
       {showEmployees ? (
         <>
           <div className="flex flex-wrap justify-center">

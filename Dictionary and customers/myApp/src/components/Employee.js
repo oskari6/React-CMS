@@ -1,7 +1,3 @@
-//Employee.js is a template
-
-import EditEmployee from "./EditEmployee";
-
 //a component
 function Employee(props) {
   return (

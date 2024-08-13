@@ -1,8 +1,9 @@
-import { useContext } from "react";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { useContext, useState } from "react";
+import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { NavLink } from "react-router-dom";
 import { LoginContext } from "../App";
+import Logout from "./Logout";
 
 const navigation = [
   { name: "Employees", href: "/employees" },
@@ -10,12 +11,19 @@ const navigation = [
   { name: "Dictionary", href: "/dictionary" },
 ];
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-
 export default function Header(props) {
   const [loggedIn, setLoggedIn] = useContext(LoginContext);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleLogoutClick = (e) => {
+    e.preventDefault(); // Prevent the default link behavior
+    setIsModalOpen(true); // Show the modal
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       <Disclosure as="nav" className="bg-gray-800">
@@ -35,7 +43,7 @@ export default function Header(props) {
                     )}
                   </Disclosure.Button>
                 </div>
-                <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+                <div className="flex flex-1 items-center justify-center sm:items-stretch">
                   <div className="hidden sm:ml-6 sm:block">
                     <div className="flex space-x-4">
                       {navigation.map((item) => (
@@ -55,23 +63,31 @@ export default function Header(props) {
                         </NavLink>
                       ))}
                       {loggedIn ? (
-                        <NavLink
-                          to={"/login"}
-                          onClick={() => {
-                            setLoggedIn(false);
-                            localStorage.clear();
-                          }}
-                          className="px-3 py-2 rounded-md text-sm font-medium no-underline text-gray-300 hover:bg-gray-700 hover:text-white"
-                        >
-                          Logout
-                        </NavLink>
+                        <>
+                          <NavLink
+                            to="#"
+                            onClick={handleLogoutClick}
+                            className="px-3 py-2 rounded-md text-sm font-medium no-underline text-gray-300 hover:bg-gray-700 hover:text-white"
+                          >
+                            Logout
+                          </NavLink>
+                          {isModalOpen && <Logout onClose={handleCloseModal} />}
+                        </>
                       ) : (
-                        <NavLink
-                          to={"/login"}
-                          className="px-3 py-2 rounded-md text-sm font-medium no-underline text-gray-300 hover:bg-gray-700 hover:text-white"
-                        >
-                          Login
-                        </NavLink>
+                        <>
+                          <NavLink
+                            to="/login"
+                            className="px-3 py-2 rounded-md text-sm font-medium no-underline text-gray-300 hover:bg-gray-700 hover:text-white"
+                          >
+                            Login
+                          </NavLink>
+                          <NavLink
+                            to="/api/register/"
+                            className="px-3 py-2 rounded-md text-sm font-medium no-underline text-gray-300 hover:bg-gray-700 hover:text-white"
+                          >
+                            Register
+                          </NavLink>
+                        </>
                       )}
                     </div>
                   </div>
@@ -132,7 +148,7 @@ export default function Header(props) {
         )}
       </Disclosure>
       <div className="bg-gray-300">
-        <div className="max-w-7xl mx-autobg-gray-300 min-h-screen p-3">
+        <div className="mx-autobg-gray-300 min-h-screen p-3">
           {props.children}
         </div>
       </div>

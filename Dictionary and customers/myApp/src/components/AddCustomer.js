@@ -1,24 +1,22 @@
 import { useState } from "react";
-import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
 export default function AddCustomer(props) {
   const [name, setName] = useState("");
   const [industry, setIndustry] = useState("");
-  const [show, setShow] = useState(props.show);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleClose = () => props.toggleShow();
 
   return (
     <>
-      <button
-        onClick={props.toggleShow}
-        className="block m-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-      >
-        + Add Customer
-      </button>
-
+      <div className="flex justify-center items-center">
+        <button
+          onClick={props.toggleShow}
+          className="block m-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded "
+        >
+          + Add Customer
+        </button>
+      </div>
       <Modal
         show={props.show}
         onHide={handleClose}
@@ -35,6 +33,7 @@ export default function AddCustomer(props) {
               setName("");
               setIndustry("");
               props.newCustomer(name, industry);
+              handleClose(); //close modal
             }}
             id="editmodal"
             className="w-full max-w-sm"
@@ -74,7 +73,7 @@ export default function AddCustomer(props) {
                 <input
                   className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                   id="industry"
-                  placeholder="Industry y"
+                  placeholder="Industry Y"
                   type="text"
                   value={industry}
                   onChange={(e) => {
@@ -88,7 +87,7 @@ export default function AddCustomer(props) {
         <Modal.Footer>
           <button
             className="bg-slate-400 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded"
-            onClick={props.toggleShow}
+            onClick={handleClose}
           >
             Close
           </button>
