@@ -6,6 +6,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from google.auth.transport import requests;
+from google.oauth2 import id_token
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 
 @api_view(['GET', 'POST'])
 #@permission_classes([IsAuthenticated])
@@ -57,4 +65,19 @@ def register(request):
         return Response(tokens, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+def google_auth(request):
+    if request.method == "POST":
+        try:
+            token = request.json().get("token")
+            id_info = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
+            
+            email = id_info.get("email")
+            name = id_info.get("name")
+            
+            return JsonResponse({"email": email, "name":name})
+        except ValueError:
+            return JsonResponse({"error":"invalid token"}, status=400)
+    
+    return JsonResponse({"error": "Only POST method is allowed"}, status=405)
     
