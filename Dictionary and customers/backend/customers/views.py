@@ -10,6 +10,8 @@ from google.auth.transport import requests;
 from google.oauth2 import id_token
 from dotenv import load_dotenv
 import os
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 load_dotenv()
 
@@ -65,18 +67,22 @@ def register(request):
         return Response(tokens, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+@csrf_exempt
 def google_auth(request):
     if request.method == "POST":
         try:
-            token = request.json().get("token")
+            body = json.loads(request.body.decode('utf-8'))
+            token = body.get("token")
+            print("Received token:", token)
             id_info = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
             
             email = id_info.get("email")
             name = id_info.get("name")
             
             return JsonResponse({"email": email, "name":name})
-        except ValueError:
+        except ValueError as e:
+            print("Token verification failed:", e)
             return JsonResponse({"error":"invalid token"}, status=400)
     
     return JsonResponse({"error": "Only POST method is allowed"}, status=405)

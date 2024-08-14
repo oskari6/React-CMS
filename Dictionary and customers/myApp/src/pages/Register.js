@@ -51,7 +51,17 @@ export default function Register() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Success:", data);
+        if (data.error) {
+          console.log("Error:", data.error);
+        } else {
+          setUsername({ email: data.email, name: data.name });
+          setLoggedIn(true);
+          navigate(
+            location?.state?.previousUrl
+              ? location.state.previousUrl
+              : "/customers"
+          );
+        }
       })
       .catch((error) => {
         console.error("Error:", error);
