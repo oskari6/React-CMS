@@ -14,7 +14,6 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib.auth.models import User
 
-
 load_dotenv()
 
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')

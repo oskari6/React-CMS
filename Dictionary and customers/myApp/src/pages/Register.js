@@ -1,7 +1,8 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { baseUrl } from "../Shared";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LoginContext } from "../App";
+import GoogleAuth from "../components/GoogleAuth";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
@@ -13,31 +14,6 @@ export default function Register() {
 
   const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    localStorage.clear();
-    setLoggedIn(false);
-
-    const initializeGoogleSignIn = () => {
-      /*global google*/
-      google.accounts.id.initialize({
-        client_id: clientId,
-        callback: handleCredentialResponse,
-      });
-
-      google.accounts.id.renderButton(document.getElementById("signInDiv"), {
-        theme: "outline",
-        size: "large",
-      });
-    };
-
-    // Check if the google object is available and call the function
-    if (window.google) {
-      initializeGoogleSignIn();
-    } else {
-      window.onload = initializeGoogleSignIn;
-    }
-  }, []);
 
   const handleCredentialResponse = (response) => {
     const idToken = response.credential;
@@ -59,9 +35,6 @@ export default function Register() {
 
           setUsername({ email: data.email, name: data.name });
           setLoggedIn(true);
-
-          console.log("Access Token:", localStorage.getItem("access"));
-          console.log("Refresh Token:", localStorage.getItem("refresh"));
 
           navigate(
             location?.state?.previousUrl
@@ -163,7 +136,12 @@ export default function Register() {
           Register
         </button>
       </form>
-      <div id="signInDiv"></div>
+      <div>
+        <GoogleAuth
+          clientId={clientId}
+          handleCredentialResponse={handleCredentialResponse}
+        />
+      </div>
     </div>
   );
 }
