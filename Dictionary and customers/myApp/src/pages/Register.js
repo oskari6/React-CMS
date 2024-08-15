@@ -54,8 +54,15 @@ export default function Register() {
         if (data.error) {
           console.log("Error:", data.error);
         } else {
+          localStorage.setItem("access", data.access);
+          localStorage.setItem("refresh", data.refresh);
+
           setUsername({ email: data.email, name: data.name });
           setLoggedIn(true);
+
+          console.log("Access Token:", localStorage.getItem("access"));
+          console.log("Refresh Token:", localStorage.getItem("refresh"));
+
           navigate(
             location?.state?.previousUrl
               ? location.state.previousUrl
