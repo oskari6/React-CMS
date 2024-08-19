@@ -44,7 +44,7 @@ def customer(request, id):
     
     if request.method == 'GET':
         serializer = CustomerSerializer(data)
-        return Response({'customer': serializer.data})#status 200 ok by default
+        return Response({'customer': serializer.data})
     elif request.method == 'DELETE':
         data.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -53,7 +53,7 @@ def customer(request, id):
         if serializer.is_valid():
             serializer.save()
             return Response({'customer': serializer.data})
-        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)#errors not error_message
+        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def register(request):

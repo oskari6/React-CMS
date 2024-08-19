@@ -14,6 +14,13 @@ from pathlib import Path
 import django
 from django.utils.encoding import force_str
 django.utils.encoding.force_text = force_str
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PW = os.getenv('POSTGRES_PW')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -101,8 +108,12 @@ WSGI_APPLICATION = 'customers.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': POSTGRES_USER,
+        'PASSWORD': POSTGRES_PW,
+        'HOST': 'django-project.cns6mk0gscoy.eu-north-1.rds.amazonaws.com',
+        'PORT': '5432'
     }
 }
 

@@ -1,11 +1,14 @@
 import "../index.css";
 import Employee from "../components/Employee"; //component, and invoking with <Employee />
-import { useState } from "react"; //using states
+import { useState, useContext } from "react"; //using states
 import { v4 as uuidv4 } from "uuid";
 import AddEmployee from "../components/AddEmployee";
 import EditEmployee from "../components/EditEmployee";
+import { LoginContext } from "../App";
 
 function Employees() {
+  const [loggedIn, setLoggedIn] = useContext(LoginContext);
+
   const [employees, setEmployees] = useState([
     {
       id: 1,
@@ -48,7 +51,7 @@ function Employees() {
   function updateEmployee(id, newName, newRole) {
     console.log("update");
     const updatedEmployees = employees.map((employee) => {
-      if (id == employee.id) {
+      if (id === employee.id) {
         //spreading, gets all the attributes of the employee
         return { ...employee, name: newName, role: newRole };
       }
@@ -67,10 +70,9 @@ function Employees() {
     setEmployees([...employees, newEmployee]);
   }
 
-  const showEmployees = true;
   return (
     <div>
-      {showEmployees ? (
+      {loggedIn ? (
         <>
           <div className="flex flex-wrap justify-center">
             {employees.map((employee) => {
@@ -98,7 +100,9 @@ function Employees() {
           <AddEmployee newEmployee={newEmployee} />
         </>
       ) : (
-        <p>You cannot see the employees</p>
+        <p className="text-center text-lg font-bold pt-2">
+          You cannot see the employees. Please log in.{" "}
+        </p>
       )}
     </div>
   );

@@ -135,12 +135,20 @@ export default function Header(props) {
                     Logout
                   </NavLink>
                 ) : (
-                  <NavLink
-                    to={"/login"}
-                    className="no-underline block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                  >
-                    Login
-                  </NavLink>
+                  <>
+                    <NavLink
+                      to={"/login"}
+                      className="no-underline block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >
+                      Login
+                    </NavLink>
+                    <NavLink
+                      to="/api/register/"
+                      className="no-underline block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                    >
+                      Register
+                    </NavLink>
+                  </>
                 )}
               </div>
             </Disclosure.Panel>

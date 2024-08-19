@@ -11,7 +11,7 @@ export default function Register() {
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
   const [email, setEmail] = useState();
-
+  const [error, setError] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -48,25 +48,41 @@ export default function Register() {
       });
   };
 
-  function login(e) {
+  async function login(e) {
     e.preventDefault();
     const url = baseUrl + "/api/register/";
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email,
-        username: username,
-        password: password,
-      }),
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        localStorage.setItem("access", data.access); //save credentials to local storage
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          username: username,
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 400) {
+          if (data.username) {
+            setError(data.username[0]);
+          } else if (data.email) {
+            setError(data.email[0]); // Set the specific error message for email if applicable
+          } else {
+            setError("Unknown registration error.");
+          }
+        } else {
+          setError("Registration failed.");
+        }
+        return; // Stop further processing
+      }
+
+      if (data.access && data.refresh) {
+        localStorage.setItem("access", data.access);
         localStorage.setItem("refresh", data.refresh);
         setLoggedIn(true);
         navigate(
@@ -74,7 +90,13 @@ export default function Register() {
             ? location.state.previousUrl
             : "/customers"
         );
-      });
+      } else {
+        // If access or refresh token is missing, handle it as an error
+        setError("Registration failed.");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+    }
   }
 
   return (
@@ -142,6 +164,12 @@ export default function Register() {
           handleCredentialResponse={handleCredentialResponse}
         />
       </div>
+      {error && (
+        <>
+          <p className="text-red-500 pt-2">{error}</p>
+          <p>Try again.</p>
+        </>
+      )}
     </div>
   );
 }

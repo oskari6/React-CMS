@@ -10,6 +10,7 @@ export default function Login() {
   const [username, setUsername] = useState();
   const [password, setPassword] = useState();
   const [loggedIn, setLoggedIn] = useContext(LoginContext);
+  const [error, setError] = useState("");
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -64,6 +65,26 @@ export default function Login() {
 
       const data = await response.json();
 
+      if (!response.ok) {
+        if (response.status === 401) {
+          if (data.detail) {
+            setError(data.detail);
+          } else {
+            setError("Unknown login error.");
+          }
+        } else if (response.status === 400) {
+          if (data.username) {
+            setError(data.username[0]);
+          } else if (data.email) {
+            setError(data.email[0]); // Set the specific error message for email if applicable
+          } else {
+            setError("Unknown login error.");
+          }
+        } else {
+          setError("Login failed.");
+        }
+        return; // Stop further processing
+      }
       if (data.access && data.refresh) {
         localStorage.setItem("access", data.access); //save credentials to local storage
         localStorage.setItem("refresh", data.refresh);
@@ -75,10 +96,11 @@ export default function Login() {
             : "/customers"
         );
       } else {
-        console.error("Login failed: ", data);
+        setError("Login failes.");
       }
     } catch (error) {
       console.error("Error during login:", error);
+      setError("An unknown error occurred.");
     }
   }
   return (
@@ -130,6 +152,12 @@ export default function Login() {
           handleCredentialResponse={handleCredentialResponse}
         />
       </div>
+      {error && (
+        <>
+          <p className="text-red-500 pt-2">{error}</p>
+          <p>Try again.</p>
+        </>
+      )}
     </div>
   );
 }
