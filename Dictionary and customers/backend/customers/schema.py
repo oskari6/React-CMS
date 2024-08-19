@@ -56,17 +56,19 @@ class CreateCustomer(graphene.Mutation):
 
 class CreateEmployee(graphene.Mutation):
     class Arguments:
+        id = graphene.UUID() #correct?
         full_name = graphene.String()
         role = graphene.String()
+        image = graphene #then what
     
     employee = graphene.Field(EmployeeType)
     
-    def mutate(root, info, full_name, role):
+    def mutate(root, info, id, full_name, role, image):
         user = info.context.user
         if user.is_anonymous:
             raise Exception("Authentication required")
         
-        employee = Employee(full_name=full_name, role=role, user=user)
+        employee = Employee(id=id, full_name=full_name, role=role, user=user, image=image)
         employee.save()
         return CreateEmployee(employee=employee)
     

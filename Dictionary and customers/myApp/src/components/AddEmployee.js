@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
 function AddEmployee(props) {
@@ -34,10 +33,9 @@ function AddEmployee(props) {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              setName('');
-              setRole('');
-              setImg('');
-              console.log(props.id, name, role);
+              setName("");
+              setRole("");
+              setImg("");
               props.newEmployee(name, role, img);
             }}
             id="editmodal"
@@ -61,7 +59,7 @@ function AddEmployee(props) {
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
-                  }} //e can be whatever, just a variable
+                  }}
                 />
               </div>
             </div>
