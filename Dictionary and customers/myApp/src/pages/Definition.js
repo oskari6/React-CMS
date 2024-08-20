@@ -2,19 +2,21 @@ import { v4 as uuidv4 } from "uuid";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import NotFound from "../components/NotFound";
 import DefinitionSearch from "../components/DefinitionSearch";
-import useFetch from "../hooks/UseFetch";
-import {useEffect} from 'react';
+import useCustomers from "../hooks/useCustomers";
+import { useEffect } from "react";
 
 export default function Definition() {
   let { search } = useParams();
   const navigate = useNavigate();
   //using [{}] to access deeper in the array
-  const {request, data: [{meanings: word}] = [{}], errorStatus} = useFetch(
-    "https://api.dictionaryapi.dev/api/v2/entries/en/" + search
-  );
+  const {
+    request,
+    data: [{ meanings: word }] = [{}],
+    errorStatus,
+  } = useCustomers("https://api.dictionaryapi.dev/api/v2/entries/en/" + search);
 
   useEffect(() => {
-  request();
+    request();
   }, []);
 
   if (errorStatus === 404) {

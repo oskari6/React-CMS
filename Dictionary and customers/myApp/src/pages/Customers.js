@@ -1,27 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { baseURL } from "../Shared";
 import AddCustomer from "../components/AddCustomer";
-import useFetch from "../hooks/UseFetch";
+import useCustomers from "../hooks/useCustomers";
 
 export default function Customers() {
   const [show, setShow] = useState(false); //true to put it open on refresh
   const toggleShow = useCallback(() => setShow((prevShow) => !prevShow), []);
 
-  const url = baseURL + "/api/customers/";
   const {
     request,
     appendData,
     data: { customers } = {},
     errorStatus,
     loading,
-  } = useFetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + localStorage.getItem("access"),
-    },
-  });
+  } = useCustomers();
 
   useEffect(() => {
     request();

@@ -1,19 +1,16 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { baseURL } from "../Shared";
 
-//custom hook
-export default function useFetch(
-  baseURL,
-  { method = "GET", headers = {}, body = null } = {}
-) {
-  const [data, setData] = useState();
-  const [errorStatus, setErrorStatus] = useState();
+export default function useCustomers() {
+  const [data, setData] = useState({ customers: [] });
+  const [errorStatus, setErrorStatus] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
-
   const abortControllerRef = useRef(null);
 
+  // Handle HTTP response and errors
   const handleResponse = useCallback(
     async (response) => {
       if (response.status === 401) {
@@ -25,54 +22,58 @@ export default function useFetch(
         return null;
       }
       if (!response.ok) {
-        throw response.status;
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       return response.json();
     },
     [navigate, location]
   );
 
+  //http error handled gracefully
   const createAbortController = () => {
     abortControllerRef.current = new AbortController();
     return abortControllerRef.current.signal;
   };
 
-  const request = useCallback(
-    async (url = baseURL) => {
-      const signal = createAbortController();
-      setLoading(true);
+  // GET request to fetch all customers
+  const request = useCallback(async () => {
+    const signal = createAbortController();
+    setLoading(true);
 
-      try {
-        const response = await fetch(url, {
-          method,
-          headers,
-          body,
-          signal,
-        });
-        const result = await handleResponse(response);
-        if (result) setData(result);
-      } catch (error) {
-        if (error.name === "AbortError") {
-          console.log("Fetch request cancelled");
-        } else setErrorStatus(error);
-      } finally {
-        setLoading(false);
+    try {
+      const response = await fetch(`${baseURL}/api/customers/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+        signal,
+      });
+      const result = await handleResponse(response);
+      if (result) setData({ customers: result });
+    } catch (error) {
+      if (error.name === "AbortError") {
+        console.log("Fetch request cancelled");
+      } else {
+        setErrorStatus(error.message);
       }
-    },
-    [baseURL, method, headers, body, handleResponse]
-  );
+    } finally {
+      setLoading(false);
+    }
+  }, [baseURL, handleResponse]);
 
+  // POST request to create a new customer
   const appendData = useCallback(
-    async (newData, key, url = baseURL) => {
+    async (newData) => {
       const signal = createAbortController();
       setLoading(true);
 
       try {
-        const response = await fetch(url, {
+        const response = await fetch(`${baseURL}/api/customers/`, {
           method: "POST",
           headers: {
-            ...headers,
             "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("access"),
           },
           body: JSON.stringify(newData),
           signal,
@@ -81,19 +82,20 @@ export default function useFetch(
         const result = await handleResponse(response);
         if (result) {
           setData((prevData) => ({
-            ...prevData,
-            [key]: [...prevData(prevData[key] || []), result],
+            customers: [...prevData.customers, result],
           }));
         }
       } catch (error) {
         if (error.name === "AbortError") {
           console.log("Fetch request cancelled");
-        } else setErrorStatus(error);
+        } else {
+          setErrorStatus(error.message);
+        }
       } finally {
         setLoading(false);
       }
     },
-    [baseURL, headers, handleResponse]
+    [baseURL, handleResponse]
   );
 
   useEffect(() => {
