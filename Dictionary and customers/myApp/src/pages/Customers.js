@@ -1,20 +1,20 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { baseUrl } from "../Shared";
+import { baseURL } from "../Shared";
 import AddCustomer from "../components/AddCustomer";
 import useFetch from "../hooks/UseFetch";
 
 export default function Customers() {
   const [show, setShow] = useState(false); //true to put it open on refresh
+  const toggleShow = useCallback(() => setShow((prevShow) => !prevShow), []);
 
-  const toggleShow = () => setShow(!show);
-
-  const url = baseUrl + "/api/customers/";
+  const url = baseURL + "/api/customers/";
   const {
     request,
     appendData,
     data: { customers } = {},
     errorStatus,
+    loading,
   } = useFetch(url, {
     method: "GET",
     headers: {
@@ -25,21 +25,33 @@ export default function Customers() {
 
   useEffect(() => {
     request();
-  });
+  }, [request]);
 
   function newCustomer(name, industry) {
-    appendData({ name: name, industry: industry });
-
+    appendData({ name, industry }, "customers");
     if (!errorStatus) {
       toggleShow();
     }
   }
 
+  useEffect(() => {
+    if (errorStatus) {
+      console.error("Failed to add a new customer: ", errorStatus);
+    } else if (customers) {
+      toggleShow();
+    }
+  }, [customers, errorStatus, toggleShow]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="max-w-[500px] mx-auto">
-      <h1 className="flex justify-center items-center mb-4">
-        Here are the customers:
-      </h1>
+      <h1 className="flex justify-center items-center mb-4">Customers</h1>
+      {errorStatus ? (
+        <div className="text-red-500">Error: {errorStatus}</div>
+      ) : null}
       {customers
         ? customers.map((customer) => {
             return (

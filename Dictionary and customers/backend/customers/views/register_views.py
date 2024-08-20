@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from customers.serializers.serializers import UserSerializer
+from customers.serializers.user_serializers import UserSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status

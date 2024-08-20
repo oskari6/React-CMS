@@ -1,14 +1,12 @@
 from customers.models.customer import Customer
-from customers.serializers.serializers import CustomerSerializer
+from customers.serializers.customer_serializers import CustomerSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
 @api_view(['GET', 'POST'])
-#@permission_classes([IsAuthenticated])
 def customers(request):
     if request.method == 'GET':
-    #invoke serializer and return to client
         data = Customer.objects.all()
         serializer = CustomerSerializer(data, many=True)
         return Response({'customers': serializer.data})
@@ -20,8 +18,7 @@ def customers(request):
             return Response({'customer': serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'POST', 'DELETE'])
-#@permission_classes([IsAuthenticated])
+@api_view(['GET', 'PATCH', 'DELETE'])
 def customer(request, id):
     try:
         data = Customer.objects.get(pk=id)
@@ -31,12 +28,14 @@ def customer(request, id):
     if request.method == 'GET':
         serializer = CustomerSerializer(data)
         return Response({'customer': serializer.data})
+    
+    elif request.method == 'PATCH':
+        serializer = CustomerSerializer(customer, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'customer': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     elif request.method == 'DELETE':
         data.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    elif request.method == 'POST':
-        serializer = CustomerSerializer(data, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'customer': serializer.data})
-        return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)

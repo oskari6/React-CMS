@@ -1,5 +1,5 @@
 import { useState, useContext } from "react";
-import { baseUrl } from "../Shared";
+import { baseURL } from "../Shared";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LoginContext } from "../App";
 import GoogleAuth from "../components/GoogleAuth";
@@ -50,7 +50,7 @@ export default function Login() {
 
   async function login(e) {
     e.preventDefault();
-    const url = baseUrl + "/api/token/";
+    const url = baseURL + "/api/token/";
     try {
       const response = await fetch(url, {
         method: "POST",

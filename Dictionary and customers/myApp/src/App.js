@@ -8,7 +8,7 @@ import NotFound from "./components/NotFound";
 import Customer from "./pages/Customer";
 import Login from "./pages/Login";
 import { createContext, useState, useEffect } from "react";
-import { baseUrl } from "./Shared";
+import { baseURL } from "./Shared";
 import Register from "./pages/Register";
 export const LoginContext = createContext();
 
@@ -19,7 +19,7 @@ function App() {
   useEffect(() => {
     function refreshTokens() {
       if (localStorage.refresh) {
-        const url = baseUrl + "api/token/refresh/";
+        const url = baseURL + "api/token/refresh/";
         fetch(url, {
           method: "POST",
           headers: {

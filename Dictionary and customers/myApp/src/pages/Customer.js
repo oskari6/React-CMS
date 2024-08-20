@@ -1,113 +1,115 @@
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
+import { useState, useContext } from "react";
 import NotFound from "../components/NotFound";
-import { baseUrl } from "../Shared";
+import { baseURL } from "../Shared";
 import { LoginContext } from "../App";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { debounce } from "lodash";
 
 export default function Customer() {
-  const { id } = useParams(); //{id} will grab the property on the object
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const [customer, setCustomer] = useState();
-  const [notFound, setNotFound] = useState();
-  const [tempCustomer, setTempCustomer] = useState();
+  const [tempCustomer, setTempCustomer] = useState(null);
   const [changed, setChanged] = useState(false);
-  const [error, setError] = useState();
   const [loggedIn, setLoggedIn] = useContext(LoginContext);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    // console.log("customer", customer);
-    // console.log("temp customer", tempCustomer);
-    // console.log("changed", changed);
-    if (!customer) return;
-    if (!tempCustomer) return;
-    let equal = true;
-    if (customer.name != tempCustomer.name) equal = false;
-    if (customer.industry != tempCustomer.industry) equal = false;
-    if (equal) setChanged(false);
-  });
+  const handleInputChange = debounce((field, value) => {
+    setTempCustomer((prev) => ({ ...prev, [field]: value }));
+    setChanged(true);
+  }, 300);
 
-  useEffect(() => {
-    const url = baseUrl + "/api/customers/" + id;
-    fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("access"),
-      },
-    })
-      .then((response) => {
-        if (response.status === 404) {
-          setNotFound(true);
-        } else if (response.status == 401) {
+  const {
+    data: customer,
+    isError,
+    error,
+  } = useQuery(
+    ["customer", id],
+    () =>
+      fetch(`${baseURL}/api/customers/${id}/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+      }).then((res) => {
+        if (res.status === 401) throw new Error("Not found");
+        if (res.status === 401) {
           setLoggedIn(false);
-          navigate("/login", {
-            state: {
-              previousUrl: location.pathname,
-            },
-          });
+          navigate("/login", { state: { previousUrl: location.pathname } });
         }
-        if (!response.ok) {
-          throw new Error("Something went wrong, try again later");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        setCustomer(data.customer);
-        setTempCustomer(data.customer);
-        setError(undefined);
-      })
-      .catch((e) => {
-        setError(e.message);
-      });
-  }, []);
+        return res.json();
+      }),
+    {
+      onSuccess: (data) => setTempCustomer(data.customer),
+    }
+  );
 
-  function updateCustomer(e) {
-    e.preventDefault(); //no refresh
-    const url = baseUrl + "api/customers/" + id;
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("access"),
-      },
-      body: JSON.stringify(tempCustomer),
-    })
-      .then((response) => {
-        if (response.status === 401) {
-          setLoggedIn(false);
-          navigate("/login", {
-            state: {
-              previousUrl: location.pathname,
-            },
-          });
+  const updateCustomerMutation = useMutation(
+    (updatedCustomer) =>
+      fetch(`${baseURL}/api/customers/${id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+        body: JSON.stringify(updatedCustomer),
+      }).then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to update customer");
         }
-        if (!response.ok) throw new Error("Something went wrong");
-        return response.json();
-      })
-      .then((data) => {
-        setCustomer(data.customer);
+        return res.json();
+      }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["customer", id]);
         setChanged(false);
-        setError(undefined);
-      })
-      .catch((e) => {
-        setError(e.message);
-      });
-  }
+      },
+      onError: (error) => {
+        console.error("Error updating customer: ", error);
+      },
+    }
+  );
+
+  const deleteCustomerMutation = useMutation(
+    () =>
+      fetch(`${baseURL}/api/customers/${id}/`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+      }).then((res) => {
+        if (res.status === 401) {
+          setLoggedIn(false);
+          navigate("/login", { state: { previousUrl: location.pathname } });
+        }
+        if (!res.ok) throw new Error("Something went wrong");
+        return res.json();
+      }),
+    {
+      onSuccess: () => navigate("/customers/"),
+    }
+  );
+
+  if (isError) return <p>{error.message}</p>;
 
   return (
     <div className="p-3">
-      {notFound ? (
+      {!customer ? (
         <>
           <NotFound />
           <p>The customer with the id {id} was not found</p>
         </>
-      ) : null}
-      {customer ? (
+      ) : (
         <div>
           <form
             className="w-full max-w-sm"
             id="customer"
-            onSubmit={updateCustomer}
+            onSubmit={(e) => {
+              e.preventDefault();
+              updateCustomerMutation.mutate(tempCustomer);
+            }}
           >
             <div className="md:flex md:items-center mb-6">
               <div className="md:w-1/4">
@@ -119,10 +121,7 @@ export default function Customer() {
                   id="name"
                   type="text"
                   value={tempCustomer.name}
-                  onChange={(e) => {
-                    setChanged(true);
-                    setTempCustomer({ ...tempCustomer, name: e.target.value });
-                  }}
+                  onChange={(e) => handleInputChange("name", e.target.value)}
                 />
               </div>
             </div>
@@ -136,22 +135,18 @@ export default function Customer() {
                   id="industry"
                   type="text"
                   value={tempCustomer.industry}
-                  onChange={(e) => {
-                    setChanged(true);
-                    setTempCustomer({
-                      ...tempCustomer,
-                      industry: e.target.value,
-                    });
-                  }}
+                  onChange={(e) =>
+                    handleInputChange("industry", e.target.value)
+                  }
                 />
               </div>
             </div>
           </form>
-          {changed ? (
+          {changed && (
             <div className="mb-2">
               <button
                 className="bg-slate-400 hover:bg-purple-700 text-white font-bold py-2 px-4 mr-2 rounded"
-                onClick={(e) => {
+                onClick={() => {
                   setTempCustomer({ ...customer });
                   setChanged(false);
                 }}
@@ -165,45 +160,19 @@ export default function Customer() {
                 Save
               </button>
             </div>
-          ) : null}
+          )}
 
           <div>
             <button
               className="bg-slate-800 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded"
-              onClick={(e) => {
-                const url = baseUrl + "/api/customers/" + id;
-                fetch(url, {
-                  method: "DELETE",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + localStorage.getItem("access"),
-                  },
-                })
-                  .then((response) => {
-                    if (response.status === 401) {
-                      setLoggedIn(false);
-                      navigate("/login", {
-                        state: {
-                          previousUrl: location.pathname,
-                        },
-                      });
-                    }
-                    if (!response.ok) {
-                      throw new Error("Something went wrong");
-                    }
-                    navigate("/customers/");
-                  })
-                  .catch((e) => {
-                    setError(e.message);
-                  });
-              }}
+              onClick={() => deleteCustomerMutation.mutate()}
             >
               Delete
             </button>
           </div>
         </div>
-      ) : null}
-      {error ? <p>{error}</p> : null}
+      )}
+      {error && <p>{error}</p>}
       <br />
       <Link to="/customers/">
         <button className="no-underline bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">

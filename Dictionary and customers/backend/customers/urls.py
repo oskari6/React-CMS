@@ -20,9 +20,13 @@ from django.urls import path
 from .views.customer_views import customers, customer
 from .views.register_views import register
 from .views.register_views import google_auth
+from .views.employee_views import employees, employee
+
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
 from .schema import schema  # Assuming schema.py is in the same app
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
@@ -32,5 +36,10 @@ urlpatterns = [
     path('api/customers/<int:id>/', customer, name='customer'),
     path('api/register/', register, name='register'),
     path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True))),
-    path("api/auth/google/", google_auth, name="google_auth")
+    path("api/auth/google/", google_auth, name="google_auth"),
+    path('api/employees/', employees, name='employees'),
+    path('/api/employees/<uuid:id>/', employee, name='employee-detail'),
 ]
+#for serving media files in development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
