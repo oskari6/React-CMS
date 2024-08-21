@@ -35,7 +35,7 @@ export default function useCustomers() {
     return abortControllerRef.current.signal;
   };
 
-  // GET request to fetch all customers
+  // GET customers
   const request = useCallback(async () => {
     const signal = createAbortController();
     setLoading(true);
@@ -50,7 +50,7 @@ export default function useCustomers() {
         signal,
       });
       const result = await handleResponse(response);
-      if (result) setData({ customers: result || [] });
+      if (result) setData(result);
     } catch (error) {
       if (error.name === "AbortError") {
         console.log("Fetch request cancelled");
@@ -62,7 +62,7 @@ export default function useCustomers() {
     }
   }, [handleResponse]);
 
-  // POST request to create a new customer
+  // POST customer
   const appendData = useCallback(
     async (newData) => {
       const signal = createAbortController();
@@ -80,10 +80,23 @@ export default function useCustomers() {
         });
 
         const result = await handleResponse(response);
+
         if (result) {
-          setData((prevData) => ({
-            customers: [...prevData.customers, result],
-          }));
+          const submitted = result.customer;
+
+          setData((prevData) => {
+            const newState = { ...prevData };
+            newState.customers.push(submitted);
+            return newState;
+          });
+
+          // Check with setTimeout to ensure state has updated
+          // Erroneuos error triggered too early
+          setTimeout(() => {
+            if (!Array.isArray(data?.customers)) {
+              setErrorStatus("Error: Data structure error: expected an array.");
+            }
+          }, 0);
         }
       } catch (error) {
         if (error.name === "AbortError") {
@@ -95,7 +108,7 @@ export default function useCustomers() {
         setLoading(false);
       }
     },
-    [handleResponse]
+    [data, handleResponse]
   );
 
   useEffect(() => {

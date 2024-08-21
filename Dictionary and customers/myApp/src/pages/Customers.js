@@ -28,7 +28,6 @@ export default function Customers() {
 
   useEffect(() => {
     if (errorStatus) {
-      console.error("Failed to add a new customer: ", errorStatus);
     } else if (customers.length > 0) {
       toggleShow();
     }
