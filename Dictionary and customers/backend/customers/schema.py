@@ -1,7 +1,8 @@
 import graphene
 from graphene_django import DjangoObjectType
-
-from customers.models import Customer, Order, Employee
+from customers.models.customer import Customer
+from customers.models.order import Order
+from customers.models.employee import Employee
 
 class CustomerType(DjangoObjectType):
     class Meta:
@@ -56,19 +57,19 @@ class CreateCustomer(graphene.Mutation):
 
 class CreateEmployee(graphene.Mutation):
     class Arguments:
-        id = graphene.UUID() #correct?
+        uuid = graphene.UUID()
         full_name = graphene.String()
         role = graphene.String()
-        image = graphene #then what
+        image = graphene.String()
     
     employee = graphene.Field(EmployeeType)
     
-    def mutate(root, info, id, full_name, role, image):
+    def mutate(root, info, uuid, full_name, role, image):
         user = info.context.user
         if user.is_anonymous:
             raise Exception("Authentication required")
         
-        employee = Employee(id=id, full_name=full_name, role=role, user=user, image=image)
+        employee = Employee(uuid=uuid, full_name=full_name, role=role, user=user, image=image)
         employee.save()
         return CreateEmployee(employee=employee)
     

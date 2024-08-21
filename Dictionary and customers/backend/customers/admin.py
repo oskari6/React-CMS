@@ -1,5 +1,7 @@
 from django.contrib import admin
-from customers.models import Customer, Order, Employee
+from customers.models.customer import Customer
+from customers.models.order import Order
+from customers.models.employee import Employee
 
 class CustomerAdmin(admin.ModelAdmin):
     def _queryset(self, request):

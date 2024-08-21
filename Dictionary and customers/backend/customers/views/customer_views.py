@@ -12,7 +12,11 @@ def customers(request):
         return Response({'customers': serializer.data})
     
     elif request.method == 'POST':
-        serializer = CustomerSerializer(data=request.data)
+        # adding the current user to the data
+        data = request.data.copy()
+        data['user'] = request.user.id
+        
+        serializer = CustomerSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response({'customer': serializer.data}, status=status.HTTP_201_CREATED)

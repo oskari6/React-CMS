@@ -50,7 +50,7 @@ export default function useCustomers() {
         signal,
       });
       const result = await handleResponse(response);
-      if (result) setData({ customers: result });
+      if (result) setData({ customers: result || [] });
     } catch (error) {
       if (error.name === "AbortError") {
         console.log("Fetch request cancelled");
@@ -60,7 +60,7 @@ export default function useCustomers() {
     } finally {
       setLoading(false);
     }
-  }, [baseURL, handleResponse]);
+  }, [handleResponse]);
 
   // POST request to create a new customer
   const appendData = useCallback(
@@ -95,7 +95,7 @@ export default function useCustomers() {
         setLoading(false);
       }
     },
-    [baseURL, handleResponse]
+    [handleResponse]
   );
 
   useEffect(() => {

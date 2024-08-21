@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 import uuid
 
 class Employee(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.BigAutoField(primary_key=True)  # Ensure this remains the primary key
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)    
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100)
     role = models.CharField(max_length=20)

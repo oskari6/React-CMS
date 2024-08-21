@@ -19,7 +19,7 @@ function App() {
   useEffect(() => {
     function refreshTokens() {
       if (localStorage.refresh) {
-        const url = baseURL + "api/token/refresh/";
+        const url = baseURL + "/api/token/refresh/";
         fetch(url, {
           method: "POST",
           headers: {

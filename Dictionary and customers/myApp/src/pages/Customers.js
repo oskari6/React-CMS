@@ -10,7 +10,7 @@ export default function Customers() {
   const {
     request,
     appendData,
-    data: { customers } = {},
+    data: { customers = [] } = {},
     errorStatus,
     loading,
   } = useCustomers();
@@ -19,8 +19,8 @@ export default function Customers() {
     request();
   }, [request]);
 
-  function newCustomer(name, industry) {
-    appendData({ name, industry }, "customers");
+  async function newCustomer(name, industry) {
+    await appendData({ name, industry }, "customers");
     if (!errorStatus) {
       toggleShow();
     }
@@ -29,7 +29,7 @@ export default function Customers() {
   useEffect(() => {
     if (errorStatus) {
       console.error("Failed to add a new customer: ", errorStatus);
-    } else if (customers) {
+    } else if (customers.length > 0) {
       toggleShow();
     }
   }, [customers, errorStatus, toggleShow]);
@@ -44,7 +44,7 @@ export default function Customers() {
       {errorStatus ? (
         <div className="text-red-500">Error: {errorStatus}</div>
       ) : null}
-      {customers
+      {customers.length > 0
         ? customers.map((customer) => {
             return (
               <div

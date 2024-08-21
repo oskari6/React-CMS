@@ -1,5 +1,5 @@
 from django.db import models
-from customer import Customer
+from .customer import Customer
 
 class Order(models.Model):
     customer = models.ForeignKey(Customer, related_name="orders", on_delete=models.CASCADE)#related name for query name
