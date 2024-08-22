@@ -8,32 +8,27 @@ import useEmployees from "../hooks/useEmployees";
 export default function Employees() {
   const [show, setShow] = useState(false); //true to put it open on refresh
   const toggleShow = useCallback(() => setShow((prevShow) => !prevShow), []);
+  const [loading, setLoading] = useState(true);
 
   const {
     request,
     appendData,
-    data: { employees } = {},
+    data: { employees = [] } = {},
     errorStatus,
-    loading,
   } = useEmployees();
 
   useEffect(() => {
     request();
+    setLoading(false);
   }, [request]);
 
-  const newEmployee = (name, role, img) => {
+  async function newEmployee(full_name, role, picture) {
     const id = uuidv4();
-    appendData({ id, name, role, img });
-    toggleShow();
-  };
-
-  useEffect(() => {
-    if (errorStatus) {
-      console.error("Failed to add a new employee: ", errorStatus);
-    } else if (employees) {
+    await appendData({ id, full_name, role, picture });
+    if (!errorStatus) {
       toggleShow();
     }
-  }, [employees, errorStatus, toggleShow]);
+  }
 
   if (loading) {
     return <div>Loading...</div>;
@@ -41,16 +36,22 @@ export default function Employees() {
 
   return (
     <div>
+      <h1 className="flex justify-center items-center mb-4">Employees</h1>
+      {errorStatus ? (
+        <div className="text-red-500">Error: {errorStatus}</div>
+      ) : null}
       <div className="flex flex-wrap justify-center">
-        {employees.map((employee) => (
-          <Employee
-            key={employee.id}
-            id={employee.id}
-            name={employee.name}
-            role={employee.role}
-            img={employee.img}
-          />
-        ))}
+        {employees.length > 0
+          ? employees.map((employee) => (
+              <Employee
+                key={employee.id}
+                id={employee.id}
+                name={employee.full_name}
+                role={employee.role}
+                img={employee.picture}
+              />
+            ))
+          : null}
       </div>
       <AddEmployee
         newEmployee={newEmployee}

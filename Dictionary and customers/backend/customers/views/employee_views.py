@@ -13,7 +13,10 @@ def employees(request):
         return Response({'employees': serializer.data})
     
     elif request.method == 'POST':
-        serializer = EmployeeSerializer(data=request.data)
+        data = request.data.copy()
+        data['user'] = request.user.id
+        
+        serializer = EmployeeSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response({'employee': serializer.data}, status=status.HTTP_201_CREATED)

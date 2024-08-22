@@ -25,21 +25,21 @@ def customers(request):
 @api_view(['GET', 'PATCH', 'DELETE'])
 def customer(request, id):
     try:
-        data = Customer.objects.get(pk=id)
+        customer_instance = Customer.objects.get(pk=id)
     except Customer.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
-        serializer = CustomerSerializer(data)
+        serializer = CustomerSerializer(customer_instance)
         return Response({'customer': serializer.data})
     
     elif request.method == 'PATCH':
-        serializer = CustomerSerializer(customer, data=request.data, partial=True)
+        serializer = CustomerSerializer(customer_instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({'customer': serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        data.delete()
+        customer_instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

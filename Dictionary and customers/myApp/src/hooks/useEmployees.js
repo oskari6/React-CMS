@@ -5,7 +5,6 @@ import { baseURL } from "../Shared";
 export default function useEmployees() {
   const [data, setData] = useState({ employees: [] });
   const [errorStatus, setErrorStatus] = useState(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const abortControllerRef = useRef(null);
@@ -35,10 +34,9 @@ export default function useEmployees() {
     return abortControllerRef.current.signal;
   };
 
-  // GET request to fetch all customers
+  // GET employees
   const request = useCallback(async () => {
     const signal = createAbortController();
-    setLoading(true);
 
     try {
       const response = await fetch(`${baseURL}/api/employees/`, {
@@ -50,23 +48,19 @@ export default function useEmployees() {
         signal,
       });
       const result = await handleResponse(response);
-      if (result) setData({ customers: result });
+      if (result) setData(result);
     } catch (error) {
       if (error.name === "AbortError") {
-        console.log("Fetch request cancelled");
       } else {
         setErrorStatus(error.message);
       }
-    } finally {
-      setLoading(false);
     }
-  }, [baseURL, handleResponse]);
+  }, [handleResponse]);
 
-  // POST request to create a new customer
+  // POST employee
   const appendData = useCallback(
     async (newData) => {
       const signal = createAbortController();
-      setLoading(true);
 
       try {
         const response = await fetch(`${baseURL}/api/employees/`, {
@@ -80,22 +74,32 @@ export default function useEmployees() {
         });
 
         const result = await handleResponse(response);
+
         if (result) {
-          setData((prevData) => ({
-            employees: [...prevData.employees, result],
-          }));
+          const submitted = result.employee;
+
+          setData((prevData) => {
+            const newState = { ...prevData };
+            newState.employees.push(submitted);
+            return newState;
+          });
+
+          // Check with setTimeout to ensure state has updated
+          // Erroneuos error triggered too early
+          setTimeout(() => {
+            if (!Array.isArray(data?.employees)) {
+              setErrorStatus("Error: Data structure error: expected an array.");
+            }
+          }, 0);
         }
       } catch (error) {
         if (error.name === "AbortError") {
-          console.log("Fetch request cancelled");
         } else {
           setErrorStatus(error.message);
         }
-      } finally {
-        setLoading(false);
       }
     },
-    [baseURL, handleResponse]
+    [data, handleResponse]
   );
 
   useEffect(() => {
@@ -105,11 +109,7 @@ export default function useEmployees() {
       }
     };
   }, []);
-  return {
-    request,
-    appendData,
-    data,
-    errorStatus,
-    loading,
-  };
+
+  return { request, appendData, data, errorStatus }; //{} instead of [] lets you have properties with the same names and allows destructuring
+  //less chance of typing incorrectly
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 
 function AddEmployee(props) {
-  const [name, setName] = useState("");
+  const [fullname, setFullname] = useState("");
   const [role, setRole] = useState("");
   const [img, setImg] = useState("");
 
@@ -15,7 +15,7 @@ function AddEmployee(props) {
     <>
       <button
         onClick={handleShow}
-        className="block mx-auto m-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+        className="block mx-auto m-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
       >
         + Add Employee
       </button>
@@ -33,10 +33,10 @@ function AddEmployee(props) {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              setName("");
+              setFullname("");
               setRole("");
               setImg("");
-              props.newEmployee(name, role, img);
+              props.newEmployee(fullname, role, img);
             }}
             id="editmodal"
             className="w-full max-w-sm"
@@ -56,9 +56,9 @@ function AddEmployee(props) {
                   id="name"
                   placeholder="Employee X"
                   type="text"
-                  value={name}
+                  value={fullname}
                   onChange={(e) => {
-                    setName(e.target.value);
+                    setFullname(e.target.value);
                   }}
                 />
               </div>
@@ -111,13 +111,13 @@ function AddEmployee(props) {
         </Modal.Body>
         <Modal.Footer>
           <button
-            className="bg-slate-400 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded"
+            className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
             onClick={handleClose}
           >
             Close
           </button>
           <button
-            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
             form="editmodal"
             onClick={handleClose}
           >

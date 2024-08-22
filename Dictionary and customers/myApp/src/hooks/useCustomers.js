@@ -5,7 +5,6 @@ import { baseURL } from "../Shared";
 export default function useCustomers() {
   const [data, setData] = useState({ customers: [] });
   const [errorStatus, setErrorStatus] = useState(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const abortControllerRef = useRef(null);
@@ -38,7 +37,6 @@ export default function useCustomers() {
   // GET customers
   const request = useCallback(async () => {
     const signal = createAbortController();
-    setLoading(true);
 
     try {
       const response = await fetch(`${baseURL}/api/customers/`, {
@@ -53,12 +51,9 @@ export default function useCustomers() {
       if (result) setData(result);
     } catch (error) {
       if (error.name === "AbortError") {
-        console.log("Fetch request cancelled");
       } else {
         setErrorStatus(error.message);
       }
-    } finally {
-      setLoading(false);
     }
   }, [handleResponse]);
 
@@ -66,7 +61,6 @@ export default function useCustomers() {
   const appendData = useCallback(
     async (newData) => {
       const signal = createAbortController();
-      setLoading(true);
 
       try {
         const response = await fetch(`${baseURL}/api/customers/`, {
@@ -100,12 +94,9 @@ export default function useCustomers() {
         }
       } catch (error) {
         if (error.name === "AbortError") {
-          console.log("Fetch request cancelled");
         } else {
           setErrorStatus(error.message);
         }
-      } finally {
-        setLoading(false);
       }
     },
     [data, handleResponse]
@@ -119,6 +110,6 @@ export default function useCustomers() {
     };
   }, []);
 
-  return { request, appendData, data, errorStatus, loading }; //{} instead of [] lets you have properties with the same names and allows destructuring
+  return { request, appendData, data, errorStatus }; //{} instead of [] lets you have properties with the same names and allows destructuring
   //less chance of typing incorrectly
 }

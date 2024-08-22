@@ -12,7 +12,7 @@ export default function AddCustomer(props) {
       <div className="flex justify-center items-center">
         <button
           onClick={props.toggleShow}
-          className="block m-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded "
+          className="block m-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded "
         >
           + Add Customer
         </button>
@@ -86,13 +86,13 @@ export default function AddCustomer(props) {
         </Modal.Body>
         <Modal.Footer>
           <button
-            className="bg-slate-400 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded"
+            className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
             onClick={handleClose}
           >
             Close
           </button>
           <button
-            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
             form="editmodal"
           >
             Add

@@ -1,19 +1,17 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { baseURL } from "../Shared";
-import { LoginContext } from "../App";
-import { useContext } from "react";
+import { useState } from "react";
 
 export default function useEmployee(id) {
-  const queryClient = useQueryClient();
-  const [loggedIn, setLoggedIn] = useContext(LoginContext);
   const navigate = useNavigate();
-  const location = useLocation();
+  const queryClient = useQueryClient();
+  const [errorStatus, setErrorStatus] = useState(null);
 
-  //GET
-  const { data, isError, error, loading } = useQuery(
-    ["employee", id],
-    () =>
+  // Fetch employee (GET request)
+  const { data } = useQuery({
+    queryKey: ["employee", id],
+    queryFn: () =>
       fetch(`${baseURL}/api/employees/${id}/`, {
         headers: {
           "Content-Type": "application/json",
@@ -21,8 +19,7 @@ export default function useEmployee(id) {
         },
       }).then((res) => {
         if (res.status === 401) {
-          setLoggedIn(false);
-          navigate("/login", { state: { previousUrl: location.pathname } });
+          navigate("/login", { state: { previousUrl: `/employees/${id}` } });
           throw new Error("Unauthorized");
         }
         if (!res.ok) {
@@ -30,40 +27,39 @@ export default function useEmployee(id) {
         }
         return res.json();
       }),
-    {
-      enabled: !!id, // Only run the query if id is provided
-    }
-  );
+    onError: (error) => {
+      setErrorStatus(error);
+    },
+  });
 
-  //PATCH
-  const updateEmployee = useMutation(
-    (updatedData) =>
+  // PATCH update employee
+  const updateEmployee = useMutation({
+    mutationFn: (updatedEmployee) =>
       fetch(`${baseURL}/api/employees/${id}/`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("access"),
         },
-        body: JSON.stringify(updatedData),
+        body: JSON.stringify(updatedEmployee),
       }).then((res) => {
         if (!res.ok) {
           throw new Error("Failed to update employee");
         }
         return res.json();
       }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["employee", id]);
-      },
-      onError: (error) => {
-        console.error("Error updating employee: ", error);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employee", id] });
+    },
+    onError: (error) => {
+      console.error("Error updating employee: ", error);
+      setErrorStatus(error);
+    },
+  });
 
-  //DELETE
-  const deleteEmployee = useMutation(
-    () =>
+  // DELETE employee
+  const deleteEmployee = useMutation({
+    mutationFn: () =>
       fetch(`${baseURL}/api/employees/${id}/`, {
         method: "DELETE",
         headers: {
@@ -73,17 +69,24 @@ export default function useEmployee(id) {
         if (!res.ok) {
           throw new Error("Failed to delete employee");
         }
-        return res.json();
+        return res.text().then((text) => {
+          return text ? JSON.parse(text) : {};
+        });
       }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries("employees");
-        navigate("/employees/");
-      },
-      onError: (error) => {
-        console.error("Error deleting employee: ", error);
-      },
-    }
-  );
-  return { data, isError, error, loading, updateEmployee, deleteEmployee };
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      navigate("/employees/");
+    },
+    onError: (error) => {
+      console.error("Error deleting employee: ", error);
+      setErrorStatus(error);
+    },
+  });
+
+  return {
+    data,
+    errorStatus,
+    updateEmployee,
+    deleteEmployee,
+  };
 }

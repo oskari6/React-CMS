@@ -1,50 +1,55 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import NotFound from "../components/NotFound";
-import { debounce } from "lodash";
 import useCustomer from "../hooks/useCustomer";
 
 export default function Customer() {
   const { id } = useParams();
   const [tempCustomer, setTempCustomer] = useState(null);
   const [changed, setChanged] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
 
-  const {
-    data: customer,
-    tempResource,
-    isError,
-    error,
-    updateResource,
-    deleteResource,
-  } = useCustomer("customers", id);
+  const { data, errorStatus, updateCustomer, deleteCustomer } = useCustomer(id);
 
   useEffect(() => {
-    if (customer) {
-      setTempCustomer(customer);
+    if (data) {
+      setTempCustomer(data.customer);
+      setLoading(false); // Data has been loaded
     }
-  }, [customer]);
+  }, [data]);
 
-  const handleInputChange = debounce((field, value) => {
+  const handleInputChange = (field, value) => {
     setTempCustomer((prev) => ({ ...prev, [field]: value }));
     setChanged(true);
-  }, 300);
+    setSaved(false);
+  };
 
-  const updateCustomer = (e) => {
+  const handleUpdateCustomer = (e) => {
     e.preventDefault();
     if (tempCustomer) {
-      updateResource.mutate(tempCustomer);
+      updateCustomer.mutate(tempCustomer, {
+        onSuccess: () => {
+          setSaved(true);
+        },
+      });
     }
   };
 
-  const deleteCustomer = () => {
-    deleteResource.mutate();
+  const handleDeleteCustomer = () => {
+    deleteCustomer.mutate();
   };
 
-  if (isError) return <p>{error.message}</p>;
-
+  if (loading) {
+    return <p>Loading customer data...</p>; // Show loading message until tempCustomer is set
+  }
+  
   return (
     <div className="p-3">
-      {!customer ? (
+      {errorStatus ? (
+        <div className="text-red-500">Error: {errorStatus}</div>
+      ) : null}
+      {!data ? (
         <>
           <NotFound />
           <p>The customer with the id {id} was not found</p>
@@ -54,7 +59,7 @@ export default function Customer() {
           <form
             className="w-full max-w-sm"
             id="customer"
-            onSubmit={updateCustomer}
+            onSubmit={handleUpdateCustomer}
           >
             <div className="md:flex md:items-center mb-6">
               <div className="md:w-1/4">
@@ -87,37 +92,35 @@ export default function Customer() {
               </div>
             </div>
           </form>
-          {changed && (
+          {!saved && changed && (
             <div className="mb-2">
               <button
-                className="bg-slate-400 hover:bg-purple-700 text-white font-bold py-2 px-4 mr-2 rounded"
+                className="bg-red-400 hover:bg-red-700 text-white font-bold py-2 px-4 mr-2 rounded"
                 onClick={() => {
-                  setTempCustomer(customer);
+                  setTempCustomer(data.customer);
                   setChanged(false);
                 }}
               >
                 Cancel
               </button>
               <button
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
                 form="customer"
               >
                 Save
               </button>
             </div>
           )}
-
           <div>
             <button
               className="bg-slate-800 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded"
-              onClick={deleteCustomer}
+              onClick={handleDeleteCustomer}
             >
               Delete
             </button>
           </div>
         </div>
       )}
-      {error && <p>{error}</p>}
       <br />
       <Link to="/customers/">
         <button className="no-underline bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">

@@ -4,14 +4,14 @@ import useEmployee from "../hooks/useEmployee";
 
 function Employee({ id, name, role, img }) {
   // Use the useEmployee hook to manage the employee's data and actions
-  const { updateResource, deleteResource } = useEmployee(id);
+  const { updateEmployee, deleteEmployee } = useEmployee(id);
 
   const handleUpdate = (updatedData) => {
-    updateResource.mutate(updatedData);
+    updateEmployee.mutate(updatedData);
   };
 
   const handleDelete = () => {
-    deleteResource.mutate();
+    deleteEmployee.mutate();
   };
   return (
     <div className="min-w-[350px] max-w-[350px] m-2 py-8 px-8 max-w-sm bg-white rounded-xl shadow-lg space-y-2 sm:py-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-6">

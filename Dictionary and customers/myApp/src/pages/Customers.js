@@ -6,17 +6,18 @@ import useCustomers from "../hooks/useCustomers";
 export default function Customers() {
   const [show, setShow] = useState(false); //true to put it open on refresh
   const toggleShow = useCallback(() => setShow((prevShow) => !prevShow), []);
+  const [loading, setLoading] = useState(true);
 
   const {
     request,
     appendData,
     data: { customers = [] } = {},
     errorStatus,
-    loading,
   } = useCustomers();
 
   useEffect(() => {
     request();
+    setLoading(false);
   }, [request]);
 
   async function newCustomer(name, industry) {
@@ -25,13 +26,6 @@ export default function Customers() {
       toggleShow();
     }
   }
-
-  useEffect(() => {
-    if (errorStatus) {
-    } else if (customers.length > 0) {
-      toggleShow();
-    }
-  }, [customers, errorStatus, toggleShow]);
 
   if (loading) {
     return <div>Loading...</div>;

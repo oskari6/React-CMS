@@ -1,17 +1,17 @@
-import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { baseURL } from "../Shared";
+import { useState } from "react";
 
 export default function useCustomer(id) {
-  const [tempResource, setTempResource] = useState(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [errorStatus, setErrorStatus] = useState(null);
 
   // Fetch customer (GET request)
-  const { data, isError, error } = useQuery(
-    ["customer", id],
-    () =>
+  const { data } = useQuery({
+    queryKey: ["customer", id],
+    queryFn: () =>
       fetch(`${baseURL}/api/customers/${id}/`, {
         headers: {
           "Content-Type": "application/json",
@@ -27,14 +27,14 @@ export default function useCustomer(id) {
         }
         return res.json();
       }),
-    {
-      onSuccess: (data) => setTempResource(data),
-    }
-  );
+    onError: (error) => {
+      setErrorStatus(error);
+    },
+  });
 
-  // Update customer (PATCH request)
-  const updateResource = useMutation(
-    (updatedCustomer) =>
+  // PATCH update customer
+  const updateCustomer = useMutation({
+    mutationFn: (updatedCustomer) =>
       fetch(`${baseURL}/api/customers/${id}/`, {
         method: "PATCH",
         headers: {
@@ -48,20 +48,18 @@ export default function useCustomer(id) {
         }
         return res.json();
       }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["customer", id]);
-        setTempResource(null);
-      },
-      onError: (error) => {
-        console.error("Error updating customer: ", error);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customer", id] });
+    },
+    onError: (error) => {
+      console.error("Error updating customer: ", error);
+      setErrorStatus(error);
+    },
+  });
 
-  // Delete customer (DELETE request)
-  const deleteResource = useMutation(
-    () =>
+  // DELETE customer
+  const deleteCustomer = useMutation({
+    mutationFn: () =>
       fetch(`${baseURL}/api/customers/${id}/`, {
         method: "DELETE",
         headers: {
@@ -71,25 +69,24 @@ export default function useCustomer(id) {
         if (!res.ok) {
           throw new Error("Failed to delete customer");
         }
-        return res.json();
+        return res.text().then((text) => {
+          return text ? JSON.parse(text) : {};
+        });
       }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["customers"]);
-        navigate("/customers/");
-      },
-      onError: (error) => {
-        console.error("Error deleting customer: ", error);
-      },
-    }
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
+      navigate("/customers/");
+    },
+    onError: (error) => {
+      console.error("Error deleting customer: ", error);
+      setErrorStatus(error);
+    },
+  });
 
   return {
     data,
-    tempResource,
-    isError,
-    error,
-    updateResource,
-    deleteResource,
+    errorStatus,
+    updateCustomer,
+    deleteCustomer,
   };
 }
