@@ -34,21 +34,35 @@ export default function useEmployee(id) {
 
   // PATCH update employee
   const updateEmployee = useMutation({
-    mutationFn: (updatedEmployee) =>
-      fetch(`${baseURL}/api/employees/${id}/`, {
+    mutationFn: (updatedEmployee) => {
+      let body;
+      let headers = {
+        Authorization: "Bearer " + localStorage.getItem("access"),
+      };
+
+      if (updatedEmployee.picture) {
+        body = new FormData();
+        for (let key in updatedEmployee) {
+          body.append(key, updatedEmployee[key]);
+        }
+      } else {
+        headers["Content-Type"] = "application/json";
+        body = JSON.stringify(updatedEmployee);
+      }
+
+      return fetch(`${baseURL}/api/employees/${id}/`, {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("access"),
-        },
-        body: JSON.stringify(updatedEmployee),
+        headers,
+        body,
       }).then((res) => {
         if (!res.ok) {
           throw new Error("Failed to update employee");
         }
         return res.json();
-      }),
+      });
+    },
     onSuccess: () => {
+      queryClient.invalidateQueries("employees");
       queryClient.invalidateQueries({ queryKey: ["employee", id] });
     },
     onError: (error) => {
@@ -74,7 +88,7 @@ export default function useEmployee(id) {
         });
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      queryClient.invalidateQueries("employees");
       navigate("/employees/");
     },
     onError: (error) => {

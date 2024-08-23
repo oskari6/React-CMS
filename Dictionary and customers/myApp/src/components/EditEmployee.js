@@ -2,12 +2,10 @@ import { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 
 function EditEmployee(props) {
-  const [name, setName] = useState(props.name);
+  const [fullname, setFullname] = useState(props.name);
   const [role, setRole] = useState(props.role);
   const [img, setImg] = useState(props.img);
-
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -15,7 +13,7 @@ function EditEmployee(props) {
     <>
       <button
         onClick={handleShow}
-        className="px-4 py-1 text-sm text-purple-600 font-semibold rounded-full border border-purple-200 hover:text-white hover:bg-purple-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2"
+        className="px-4 py-1 text-sm text-blue-600 font-semibold rounded-full border border-blue-200 hover:text-white hover:bg-blue-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
       >
         Update
       </button>
@@ -34,11 +32,16 @@ function EditEmployee(props) {
             onSubmit={(e) => {
               handleClose();
               e.preventDefault();
-              console.log(props.id, name, role);
-              props.updateEmployee(props.id, name, role);
+              props.updateEmployee({
+                id: props.id,
+                full_name: fullname,
+                role: role,
+                picture: img,
+              });
             }}
             id="editmodal"
             className="w-full max-w-sm"
+            enctype="multipart/form-data"
           >
             <div className="md:flex md:items-center mb-6">
               <div className="md:w-1/3">
@@ -54,9 +57,9 @@ function EditEmployee(props) {
                   className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                   id="name"
                   type="text"
-                  value={name}
+                  value={fullname}
                   onChange={(e) => {
-                    setName(e.target.value);
+                    setFullname(e.target.value);
                   }}
                 />
               </div>

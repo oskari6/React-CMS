@@ -61,15 +61,24 @@ export default function useEmployees() {
   const appendData = useCallback(
     async (newData) => {
       const signal = createAbortController();
-
       try {
+        let body;
+        let headers = {
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        };
+        if (newData.picture) {
+          body = new FormData();
+          for (let key in newData) {
+            body.append(key, newData[key]);
+          }
+        } else {
+          headers["Content-Type"] = "application/json";
+          body = JSON.stringify(newData);
+        }
         const response = await fetch(`${baseURL}/api/employees/`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("access"),
-          },
-          body: JSON.stringify(newData),
+          headers,
+          body,
           signal,
         });
 

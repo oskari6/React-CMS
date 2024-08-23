@@ -6,9 +6,10 @@ import AddEmployee from "../components/AddEmployee";
 import useEmployees from "../hooks/useEmployees";
 
 export default function Employees() {
-  const [show, setShow] = useState(false); //true to put it open on refresh
+  const [show, setShow] = useState(false); // true to put it open on refresh
   const toggleShow = useCallback(() => setShow((prevShow) => !prevShow), []);
   const [loading, setLoading] = useState(true);
+  const [employeeList, setEmployeeList] = useState([]);
 
   const {
     request,
@@ -18,19 +19,28 @@ export default function Employees() {
   } = useEmployees();
 
   useEffect(() => {
-    request();
-    setLoading(false);
-  }, [request]);
+    if (employees.length === 0) {
+      request().then(() => {
+        setEmployeeList(employees); // Set the employee list once the data is fetched
+      });
+    } else {
+      setEmployeeList(employees); // Use already loaded data if available
+    }
+  }, [request, employees]);
 
-  async function newEmployee(full_name, role, picture) {
-    const id = uuidv4();
-    await appendData({ id, full_name, role, picture });
+  async function handleNew(newEmployee) {
+    newEmployee.uuid = uuidv4();
+    const addedEmployee = await appendData(newEmployee);
     if (!errorStatus) {
+      if (addedEmployee && addedEmployee.id) {
+        setEmployeeList((prevList) => [...prevList, addedEmployee]);
+        toggleShow();
+      }
       toggleShow();
     }
   }
 
-  if (loading) {
+  if (employeeList.length === 0 && !loading) {
     return <div>Loading...</div>;
   }
 
@@ -41,23 +51,21 @@ export default function Employees() {
         <div className="text-red-500">Error: {errorStatus}</div>
       ) : null}
       <div className="flex flex-wrap justify-center">
-        {employees.length > 0
-          ? employees.map((employee) => (
+        {employeeList.length > 0
+          ? employeeList.map((employee) => (
               <Employee
                 key={employee.id}
                 id={employee.id}
                 name={employee.full_name}
                 role={employee.role}
                 img={employee.picture}
+                onUpdate={handleUpdate}
+                onDelete={handleDelete}
               />
             ))
           : null}
       </div>
-      <AddEmployee
-        newEmployee={newEmployee}
-        show={show}
-        toggleShow={toggleShow}
-      />
+      <AddEmployee handleNew={handleNew} show={show} toggleShow={toggleShow} />
     </div>
   );
 }

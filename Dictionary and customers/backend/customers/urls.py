@@ -38,7 +38,7 @@ urlpatterns = [
     path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True))),
     path('api/auth/google/', google_auth, name='google_auth'),
     path('api/employees/', employees, name='employees'),
-    path('api/employees/<uuid:id>/', employee, name='employee-detail'),
+    path('api/employees/<int:id>/', employee, name='employee-detail'),
 ]
 #for serving media files in development
 if settings.DEBUG:
