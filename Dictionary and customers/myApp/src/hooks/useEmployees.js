@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { baseURL } from "../Shared";
 
 export default function useEmployees() {
-  const [data, setData] = useState({ employees: [] });
+  const [data, setData] = useState([]);
   const [errorStatus, setErrorStatus] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,13 +48,17 @@ export default function useEmployees() {
         signal,
       });
       const result = await handleResponse(response);
-      if (result) setData(result);
+      if (result) {
+        setData(result.employees || []);
+        return result.employees || [];
+      }
     } catch (error) {
       if (error.name === "AbortError") {
       } else {
         setErrorStatus(error.message);
       }
     }
+    return [];
   }, [handleResponse]);
 
   // POST employee
@@ -85,21 +89,8 @@ export default function useEmployees() {
         const result = await handleResponse(response);
 
         if (result) {
-          const submitted = result.employee;
-
-          setData((prevData) => {
-            const newState = { ...prevData };
-            newState.employees.push(submitted);
-            return newState;
-          });
-
-          // Check with setTimeout to ensure state has updated
-          // Erroneuos error triggered too early
-          setTimeout(() => {
-            if (!Array.isArray(data?.employees)) {
-              setErrorStatus("Error: Data structure error: expected an array.");
-            }
-          }, 0);
+          setData((prevData) => [...prevData, result.employee]);
+          return result.employee;
         }
       } catch (error) {
         if (error.name === "AbortError") {
@@ -108,7 +99,7 @@ export default function useEmployees() {
         }
       }
     },
-    [data, handleResponse]
+    [handleResponse]
   );
 
   useEffect(() => {
@@ -119,6 +110,6 @@ export default function useEmployees() {
     };
   }, []);
 
-  return { request, appendData, data, errorStatus }; //{} instead of [] lets you have properties with the same names and allows destructuring
+  return { request, appendData, errorStatus }; //{} instead of [] lets you have properties with the same names and allows destructuring
   //less chance of typing incorrectly
 }

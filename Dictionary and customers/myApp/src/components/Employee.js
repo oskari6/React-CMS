@@ -5,11 +5,12 @@ import useEmployee from "../hooks/useEmployee";
 import { baseURL } from "../Shared.js";
 
 function Employee({ id, name, role, img, onUpdate, onDelete }) {
+  const imageUrl = `${baseURL}${img}`;
   const [employeeData, setEmployeeData] = useState({
     id,
     name,
     role,
-    img: `${baseURL}${img}`, // Construct the image URL
+    img, // Construct the image URL
   });
 
   const { updateEmployee, deleteEmployee } = useEmployee(id);
@@ -20,7 +21,7 @@ function Employee({ id, name, role, img, onUpdate, onDelete }) {
       id,
       name,
       role,
-      img: `${baseURL}${img}`,
+      img,
     }));
   }, [id, name, role, img]);
 
@@ -50,7 +51,7 @@ function Employee({ id, name, role, img, onUpdate, onDelete }) {
     <div className="min-w-[350px] max-w-[350px] m-2 py-8 px-8 max-w-sm bg-white rounded-xl shadow-lg space-y-2 sm:py-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-6">
       <img
         className="object-cover rounded-full h-[100px] w-[100px] block mx-auto h-24 rounded-full sm:mx-0 sm:shrink-0"
-        src={img}
+        src={imageUrl}
         alt="employee"
       />
       <div className="text-center space-y-2 sm:text-left">

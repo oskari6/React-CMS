@@ -9,38 +9,60 @@ export default function Employees() {
   const [show, setShow] = useState(false); // true to put it open on refresh
   const toggleShow = useCallback(() => setShow((prevShow) => !prevShow), []);
   const [loading, setLoading] = useState(true);
-  const [employeeList, setEmployeeList] = useState([]);
+  const [employees, setEmployees] = useState([]);
 
-  const {
-    request,
-    appendData,
-    data: { employees = [] } = {},
-    errorStatus,
-  } = useEmployees();
+  const { request, appendData, errorStatus } = useEmployees();
 
   useEffect(() => {
-    if (employees.length === 0) {
-      request().then(() => {
-        setEmployeeList(employees); // Set the employee list once the data is fetched
+    request()
+      .then((employees) => {
+        if (employees && employees.length > 0) {
+          setEmployees(employees); // Set the employee list with the returned data
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        setLoading(false);
       });
-    } else {
-      setEmployeeList(employees); // Use already loaded data if available
-    }
-  }, [request, employees]);
+  }, [request]);
 
   async function handleNew(newEmployee) {
+    setLoading(true);
     newEmployee.uuid = uuidv4();
-    const addedEmployee = await appendData(newEmployee);
-    if (!errorStatus) {
+
+    try {
+      const addedEmployee = await appendData(newEmployee);
+
       if (addedEmployee && addedEmployee.id) {
-        setEmployeeList((prevList) => [...prevList, addedEmployee]);
+        // Ensure addedEmployee is correctly populated
+        setEmployees((prevList) => [...prevList, addedEmployee]);
         toggleShow();
       }
-      toggleShow();
+    } catch (error) {
+      console.error("Failed to add new employee:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
-  if (employeeList.length === 0 && !loading) {
+  const handleUpdate = (updatedData) => {
+    const updatedEmployee = updatedData.employee;
+    setEmployees((prevList) =>
+      prevList.map((employee) =>
+        employee.id === updatedEmployee.id
+          ? { ...employee, ...updatedEmployee }
+          : employee
+      )
+    );
+  };
+
+  const handleDelete = (id) => {
+    setEmployees((prevList) =>
+      prevList.filter((employee) => employee.id !== id)
+    );
+  };
+
+  if (employees.length === 0 && !loading) {
     return <div>Loading...</div>;
   }
 
@@ -51,8 +73,8 @@ export default function Employees() {
         <div className="text-red-500">Error: {errorStatus}</div>
       ) : null}
       <div className="flex flex-wrap justify-center">
-        {employeeList.length > 0
-          ? employeeList.map((employee) => (
+        {employees.length > 0
+          ? employees.map((employee) => (
               <Employee
                 key={employee.id}
                 id={employee.id}
