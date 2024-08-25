@@ -1,5 +1,5 @@
 from customers.models.employee import Employee
-from customers.serializers.employee_serializers import EmployeeSerializer
+from customers.serializers.employee_serializer import EmployeeSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status

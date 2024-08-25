@@ -34,7 +34,6 @@ export default function Employees() {
       const addedEmployee = await appendData(newEmployee);
 
       if (addedEmployee && addedEmployee.id) {
-        // Ensure addedEmployee is correctly populated
         setEmployees((prevList) => [...prevList, addedEmployee]);
         toggleShow();
       }
@@ -46,7 +45,7 @@ export default function Employees() {
   }
 
   const handleUpdate = (updatedData) => {
-    const updatedEmployee = updatedData.employee;
+    const updatedEmployee = updatedData;
     setEmployees((prevList) =>
       prevList.map((employee) =>
         employee.id === updatedEmployee.id

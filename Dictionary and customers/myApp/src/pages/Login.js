@@ -112,7 +112,7 @@ export default function Login() {
       >
         <div className="md:flex md:items-center mb-6">
           <div className="md:w-1/4">
-            <label for="username">Username</label>
+            <label htmlFor="username">Username</label>
           </div>
           <div className="md:w-3/4">
             <input
@@ -128,7 +128,7 @@ export default function Login() {
         </div>
         <div className="md:flex md:items-center mb-6">
           <div className="md:w-1/4">
-            <label for="password">Password</label>
+            <label htmlFor="password">Password</label>
           </div>
           <div className="md:w-3/4">
             <input

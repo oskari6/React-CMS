@@ -6,17 +6,17 @@ import { baseURL } from "../Shared.js";
 
 function Employee({ id, name, role, img, onUpdate, onDelete }) {
   const imageUrl = `${baseURL}${img}`;
-  const [employeeData, setEmployeeData] = useState({
+  const [employee, setEmployee] = useState({
     id,
     name,
     role,
-    img, // Construct the image URL
+    img,
   });
 
   const { updateEmployee, deleteEmployee } = useEmployee(id);
 
   useEffect(() => {
-    setEmployeeData((prevData) => ({
+    setEmployee((prevData) => ({
       ...prevData,
       id,
       name,
@@ -28,13 +28,12 @@ function Employee({ id, name, role, img, onUpdate, onDelete }) {
   const handleUpdate = (updatedData) => {
     updateEmployee.mutate(updatedData, {
       onSuccess: (data) => {
-        // Immediately update local state with the new data
-        setEmployeeData((prevData) => ({
+        setEmployee((prevData) => ({
           ...prevData,
-          ...data.employee,
-          img: `${baseURL}${data.employee.picture}`, // Update image URL
+          ...data,
+          img,
         }));
-        if (onUpdate) onUpdate(data); // Notify parent if needed
+        if (onUpdate) onUpdate(data); //parent state change
       },
     });
   };
@@ -42,7 +41,7 @@ function Employee({ id, name, role, img, onUpdate, onDelete }) {
   const handleDelete = () => {
     deleteEmployee.mutate(null, {
       onSuccess: () => {
-        if (onDelete) onDelete(id); // Notify parent to remove the employee from the list
+        if (onDelete) onDelete(id); //parent state change
       },
     });
   };

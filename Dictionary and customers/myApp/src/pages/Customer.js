@@ -20,8 +20,13 @@ export default function Customer() {
   }, [data]);
 
   const handleInputChange = (field, value) => {
-    setTempCustomer((prev) => ({ ...prev, [field]: value }));
-    setChanged(true);
+    setTempCustomer((prev) => {
+      const updatedCustomer = { ...prev, [field]: value };
+      const hasChanged =
+        JSON.stringify(updatedCustomer) !== JSON.stringify(data.customer);
+      setChanged(hasChanged);
+      return updatedCustomer;
+    });
     setSaved(false);
   };
 
@@ -43,7 +48,7 @@ export default function Customer() {
   if (loading) {
     return <p>Loading customer data...</p>; // Show loading message until tempCustomer is set
   }
-  
+
   return (
     <div className="p-3">
       {errorStatus ? (
@@ -63,7 +68,7 @@ export default function Customer() {
           >
             <div className="md:flex md:items-center mb-6">
               <div className="md:w-1/4">
-                <label for="name">Name</label>
+                <label htmlFor="name">Name</label>
               </div>
               <div className="md:w-3/4">
                 <input
@@ -77,7 +82,7 @@ export default function Customer() {
             </div>
             <div className="md:flex md:items-center mb-6">
               <div className="md:w-1/4">
-                <label for="industry">Industry</label>
+                <label htmlFor="industry">Industry</label>
               </div>
               <div className="md:w-3/4">
                 <input
@@ -125,6 +130,11 @@ export default function Customer() {
       <Link to="/customers/">
         <button className="no-underline bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
           ← Go back
+        </button>
+      </Link>
+      <Link to={`/customers/${id}/orders/`}>
+        <button className=" ml-2 no-underline bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded">
+          Orders
         </button>
       </Link>
     </div>

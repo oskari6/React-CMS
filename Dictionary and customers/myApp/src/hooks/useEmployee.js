@@ -58,7 +58,7 @@ export default function useEmployee(id) {
         if (!res.ok) {
           throw new Error("Failed to update employee");
         }
-        return res.json();
+        return res.json().then((data) => data.employee);
       });
     },
     onSuccess: () => {

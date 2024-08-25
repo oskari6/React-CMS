@@ -1,5 +1,5 @@
 from customers.models.customer import Customer
-from customers.serializers.customer_serializers import CustomerSerializer
+from customers.serializers.customer_serializer import CustomerSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status

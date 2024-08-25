@@ -41,7 +41,7 @@ function EditEmployee(props) {
             }}
             id="editmodal"
             className="w-full max-w-sm"
-            enctype="multipart/form-data"
+            encType="multipart/form-data"
           >
             <div className="md:flex md:items-center mb-6">
               <div className="md:w-1/3">
