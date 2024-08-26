@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from customers.models.order import Order
+from customers.models.item import Item
+from customers.models.order_item import OrderItem
 from customers.models.customer import Customer
 from customers.serializers.order_serializer import OrderSerializer
 
@@ -23,9 +25,24 @@ def orders(request, customer_id):
         data = request.data.copy()
         data['customer'] = customer_instance.id
 
+        items_data = data.pop('items', [])
+
         serializer = OrderSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
+            
+            for item_data in items_data:
+                item_id = item_data.get('item_id')
+                quantity = item_data.get('quantity', 1)
+                
+                try:
+                    item_instance = Item.objects.get(pk=item_id)
+                    OrderItem.objects.create(order=order, item=item_instance, quantity=quantity)
+                except Item.DoesNotExist:
+                    # If the item does not exist, return a 400 error
+                    return Response({"error": f"Item with id {item_id} does not exist."}, status=status.HTTP_400_BAD_REQUEST)
+
+
             return Response({'order': serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

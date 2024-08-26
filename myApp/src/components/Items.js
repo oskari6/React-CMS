@@ -38,23 +38,23 @@ export default function Items({ handleItemsSelection }) {
     return <p>Loading items...</p>;
   }
   return (
-    <div className="p-3">
+    <div className="p-3 flex justify-center">
       {errorStatus ? (
         <div className="text-red-500">Error: {errorStatus}</div>
       ) : null}
       {items.length > 0 ? (
         <ul>
           {items.map((item) => (
-            <li key={item.id} className="mb-2">
+            <li key={item.id} className="mb-2 text-gray-500 font-bold ">
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  className="mr-2"
+                  className="mr-2 form-checkbox h-5 w-5 text-gray-600"
                   checked={selected.includes(item.id)}
                   onChange={() => handleCheckboxChange(item.id)}
                 />
                 <span>
-                  item {item.item_number}. {item.item_name} -
+                  Item {item.item_number}. {item.item_name} -
                   {item.price_in_cents / 100} USD
                 </span>
               </label>

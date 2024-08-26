@@ -1,9 +1,8 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { baseURL } from "../Shared";
 
 export default function useItems() {
-  const [data, setData] = useState([]);
   const [errorStatus, setErrorStatus] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,7 +48,6 @@ export default function useItems() {
       });
       const result = await handleResponse(response);
       if (result) {
-        setData(result.items || []);
         return result.items || [];
       }
     } catch (error) {

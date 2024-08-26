@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { baseURL } from "../Shared";
 
 export default function useEmployees() {
-  const [data, setData] = useState([]);
   const [errorStatus, setErrorStatus] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,7 +48,6 @@ export default function useEmployees() {
       });
       const result = await handleResponse(response);
       if (result) {
-        setData(result.employees || []);
         return result.employees || [];
       }
     } catch (error) {
@@ -89,7 +87,6 @@ export default function useEmployees() {
         const result = await handleResponse(response);
 
         if (result) {
-          setData((prevData) => [...prevData, result.employee]);
           return result.employee;
         }
       } catch (error) {

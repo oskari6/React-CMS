@@ -26,10 +26,18 @@ export default function Orders() {
       });
   }, [request]);
 
-  async function newOrder() {
-    await appendData({}, "orders");
-    if (!errorStatus) {
-      toggleShow();
+  async function handleNew(newOrder) {
+    try {
+      const addedOrder = await appendData(newOrder);
+
+      if (addedOrder && addedOrder.id) {
+        setOrders((prevList) => [...prevList, addedOrder]);
+        toggleShow();
+      }
+    } catch (error) {
+      console.error("Failed to add new order:", error);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -68,7 +76,7 @@ export default function Orders() {
       ) : (
         <div>
           <p>No orders were found for this customer</p>
-          <AddOrder newOrder={newOrder} />
+          <AddOrder handleNew={handleNew} />
         </div>
       )}
     </div>

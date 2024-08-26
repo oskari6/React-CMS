@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { baseURL } from "../Shared";
 
 export default function useCustomers() {
-  const [data, setData] = useState({ customers: [] });
   const [errorStatus, setErrorStatus] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,7 +48,6 @@ export default function useCustomers() {
       });
       const result = await handleResponse(response);
       if (result) {
-        setData(result.customers || []);
         return result.customers || [];
       }
     } catch (error) {
@@ -79,7 +77,6 @@ export default function useCustomers() {
         const result = await handleResponse(response);
 
         if (result) {
-          setData((prevData) => [...prevData, result.customer]);
           return result.customer;
         }
       } catch (error) {

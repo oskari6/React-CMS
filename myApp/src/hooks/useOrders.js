@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { baseURL } from "../Shared";
 
 export default function useOrders(customerId) {
-  const [data, setData] = useState([]);
   const [errorStatus, setErrorStatus] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -53,7 +52,6 @@ export default function useOrders(customerId) {
       });
       const result = await handleResponse(response);
       if (result) {
-        setData(result.orders || []);
         return result.orders || [];
       }
     } catch (error) {
@@ -65,5 +63,39 @@ export default function useOrders(customerId) {
     return [];
   }, [handleResponse]);
 
-  return { request, errorStatus };
+  // POST order
+  const appendData = useCallback(
+    async (newData) => {
+      const signal = createAbortController();
+
+      try {
+        const response = await fetch(
+          `${baseURL}/api/customers/${customerId}/orders/`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("access"),
+            },
+            body: JSON.stringify(newData),
+            signal,
+          }
+        );
+
+        const result = await handleResponse(response);
+
+        if (result) {
+          return result.order;
+        }
+      } catch (error) {
+        if (error.name === "AbortError") {
+        } else {
+          setErrorStatus(error.message);
+        }
+      }
+    },
+    [handleResponse]
+  );
+
+  return { request, appendData, errorStatus };
 }

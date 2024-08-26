@@ -2,11 +2,13 @@ import { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Items from "../components/Items";
 
-function AddOrder({ newOrder }) {
+function AddOrder(props) {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const [error, setError] = useState("");
 
+  //form fields
   const [information, setInformation] = useState({
     billing_address: "",
     street: "",
@@ -18,6 +20,7 @@ function AddOrder({ newOrder }) {
 
   const [selectedItems, setSelectedItems] = useState([]);
 
+  //form filling
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setInformation((prevState) => ({
@@ -26,18 +29,34 @@ function AddOrder({ newOrder }) {
     }));
   };
 
+  //item selection
   const handleItemsSelection = (selectedItems) => {
     setSelectedItems(selectedItems); // Update selected items state
   };
 
+  //form validation
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here, you will handle the form submission, including selected items
+    if (
+      !information.billing_address ||
+      !information.street ||
+      !information.city ||
+      !information.country ||
+      !information.region_code ||
+      !information.notes ||
+      selectedItems.length === 0
+    ) {
+      setError("You must fill every field and select at least one item.");
+      return;
+    }
+    setError("");
+
     const newOrderData = {
       ...information,
-      items: selectedItems, // Include the selected items in the order data
+      items: selectedItems,
     };
-    newOrder(newOrderData);
+    console.log("order: ", newOrderData);
+    props.handleNew(newOrderData);
   };
 
   return (
@@ -149,7 +168,7 @@ function AddOrder({ newOrder }) {
               <div className="md:w-1/3">
                 <label
                   className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4"
-                  htmlFor="regionCode"
+                  htmlFor="region_code"
                 >
                   Region code
                 </label>
@@ -157,21 +176,21 @@ function AddOrder({ newOrder }) {
               <div className="md:w-2/3">
                 <input
                   className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-                  id="regionCode"
-                  name="regionCode"
+                  id="region_code"
+                  name="region_code"
                   type="text"
                   value={information.region_code}
                   onChange={handleInputChange}
                 />
               </div>
             </div>
-            <div>
-              <p className="flex text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4">
+            <div className="ml-20">
+              <p className="flex justify-center text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4 ml-20">
                 Items
               </p>
               <Items handleItemsSelection={handleItemsSelection} />
             </div>
-            <div className="md:flex md:items-center mb-6">
+            <div className="md:flex justify-center mb-6">
               <div className="md:w-1/3">
                 <label
                   className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4"
@@ -182,7 +201,7 @@ function AddOrder({ newOrder }) {
               </div>
               <div className="md:w-2/3">
                 <textarea
-                  className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+                  className=" resize-none bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                   id="notes"
                   name="notes"
                   rows="4" // Adjust the number of rows for desired height
@@ -191,12 +210,14 @@ function AddOrder({ newOrder }) {
                 />
               </div>
             </div>
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Submit Order
-            </button>
+            <div className="flex justify-center ml-20">
+              <button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Submit Order
+              </button>
+            </div>
           </form>
         </Modal.Body>
         <Modal.Footer>
