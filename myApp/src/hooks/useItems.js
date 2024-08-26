@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { baseURL } from "../Shared";
 
-export default function useOrders(customerId) {
+export default function useItems() {
   const [data, setData] = useState([]);
   const [errorStatus, setErrorStatus] = useState(null);
   const navigate = useNavigate();
@@ -34,12 +34,12 @@ export default function useOrders(customerId) {
     return abortControllerRef.current.signal;
   };
 
-  // GET employees
+  // GET items
   const request = useCallback(async () => {
     const signal = createAbortController();
 
     try {
-      const response = await fetch(`${baseURL}/api/${customerId}/orders/`, {
+      const response = await fetch(`${baseURL}/api/items/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -49,8 +49,8 @@ export default function useOrders(customerId) {
       });
       const result = await handleResponse(response);
       if (result) {
-        setData(result.employees || []);
-        return result.employees || [];
+        setData(result.items || []);
+        return result.items || [];
       }
     } catch (error) {
       if (error.name === "AbortError") {
@@ -60,4 +60,6 @@ export default function useOrders(customerId) {
     }
     return [];
   }, [handleResponse]);
+
+  return { request, errorStatus };
 }

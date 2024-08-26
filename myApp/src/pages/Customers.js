@@ -7,17 +7,21 @@ export default function Customers() {
   const [show, setShow] = useState(false); //true to put it open on refresh
   const toggleShow = useCallback(() => setShow((prevShow) => !prevShow), []);
   const [loading, setLoading] = useState(true);
+  const [customers, setCustomers] = useState([]);
 
-  const {
-    request,
-    appendData,
-    data: { customers = [] } = {},
-    errorStatus,
-  } = useCustomers();
+  const { request, appendData, errorStatus } = useCustomers();
 
   useEffect(() => {
-    request();
-    setLoading(false);
+    request()
+      .then((customers) => {
+        if (customers && customers.length > 0) {
+          setCustomers(customers);
+        }
+        setLoading(false);
+      })
+      .catch((error) => {
+        setLoading(false);
+      });
   }, [request]);
 
   async function newCustomer(name, industry) {

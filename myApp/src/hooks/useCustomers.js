@@ -48,7 +48,10 @@ export default function useCustomers() {
         signal,
       });
       const result = await handleResponse(response);
-      if (result) setData(result);
+      if (result) {
+        setData(result.customers || []);
+        return result.customers || [];
+      }
     } catch (error) {
       if (error.name === "AbortError") {
       } else {
@@ -76,21 +79,8 @@ export default function useCustomers() {
         const result = await handleResponse(response);
 
         if (result) {
-          const submitted = result.customer;
-
-          setData((prevData) => {
-            const newState = { ...prevData };
-            newState.customers.push(submitted);
-            return newState;
-          });
-
-          // Check with setTimeout to ensure state has updated
-          // Erroneuos error triggered too early
-          setTimeout(() => {
-            if (!Array.isArray(data?.customers)) {
-              setErrorStatus("Error: Data structure error: expected an array.");
-            }
-          }, 0);
+          setData((prevData) => [...prevData, result.customer]);
+          return result.customer;
         }
       } catch (error) {
         if (error.name === "AbortError") {
@@ -99,7 +89,7 @@ export default function useCustomers() {
         }
       }
     },
-    [data, handleResponse]
+    [handleResponse]
   );
 
   useEffect(() => {
@@ -110,6 +100,6 @@ export default function useCustomers() {
     };
   }, []);
 
-  return { request, appendData, data, errorStatus }; //{} instead of [] lets you have properties with the same names and allows destructuring
+  return { request, appendData, errorStatus }; //{} instead of [] lets you have properties with the same names and allows destructuring
   //less chance of typing incorrectly
 }
