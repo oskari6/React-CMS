@@ -5,7 +5,7 @@ import useCustomer from "../hooks/useCustomer";
 
 export default function Customer() {
   const { id } = useParams();
-  const [tempCustomer, setTempCustomer] = useState(null);
+  const [customerData, setCustomerData] = useState(null);
   const [changed, setChanged] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
@@ -14,13 +14,13 @@ export default function Customer() {
 
   useEffect(() => {
     if (data) {
-      setTempCustomer(data.customer);
+      setCustomerData(data.customer);
       setLoading(false); // Data has been loaded
     }
   }, [data]);
 
   const handleInputChange = (field, value) => {
-    setTempCustomer((prev) => {
+    setCustomerData((prev) => {
       const updatedCustomer = { ...prev, [field]: value };
       const hasChanged =
         JSON.stringify(updatedCustomer) !== JSON.stringify(data.customer);
@@ -32,8 +32,8 @@ export default function Customer() {
 
   const handleUpdateCustomer = (e) => {
     e.preventDefault();
-    if (tempCustomer) {
-      updateCustomer.mutate(tempCustomer, {
+    if (customerData) {
+      updateCustomer.mutate(customerData, {
         onSuccess: () => {
           setSaved(true);
         },
@@ -75,7 +75,7 @@ export default function Customer() {
                   className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                   id="name"
                   type="text"
-                  value={tempCustomer?.name || ""}
+                  value={customerData?.name || ""}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                 />
               </div>
@@ -89,7 +89,7 @@ export default function Customer() {
                   className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                   id="industry"
                   type="text"
-                  value={tempCustomer?.industry || ""}
+                  value={customerData?.industry || ""}
                   onChange={(e) =>
                     handleInputChange("industry", e.target.value)
                   }
@@ -102,7 +102,7 @@ export default function Customer() {
               <button
                 className="bg-red-400 hover:bg-red-700 text-white font-bold py-2 px-4 mr-2 rounded"
                 onClick={() => {
-                  setTempCustomer(data.customer);
+                  setCustomerData(data.customer);
                   setChanged(false);
                 }}
               >

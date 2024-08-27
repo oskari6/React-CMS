@@ -23,7 +23,6 @@ from .views.register_views import google_auth
 from .views.employee_views import employees, employee
 from .views.order_views import orders, order
 from .views.item_views import items, item
-from .views.order_item_views import order_items, order_item
 
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
@@ -39,8 +38,6 @@ urlpatterns = [
     path('api/customers/<int:id>/', customer, name='customer'),
     path('api/customers/<int:customer_id>/orders/', orders, name='customer_orders'),
     path('api/customers/<int:customer_id>/orders/<int:order_id>/', order, name='customer_order'),
-    path('api/customers/<int:customer_id>/orders/<int:order_id>/items/', order_items, name='order_items'),
-    path('api/customers/<int:customer_id>/orders/<int:order_id>/items/<int:item_id>/', order_item, name='order_item'),
     path('api/items/', items, name='items'),
     path('api/items/<int:id>/', item, name='item'),
     path('api/register/', register, name='register'),

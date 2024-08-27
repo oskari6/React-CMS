@@ -50,7 +50,7 @@ export default function useEmployee(id) {
         body = JSON.stringify(updatedEmployee);
       }
 
-      return fetch(`${baseURL}/api/employees/${id}/`, {
+      return fetch(`${baseURL}/api/employees/`, {
         method: "PATCH",
         headers,
         body,

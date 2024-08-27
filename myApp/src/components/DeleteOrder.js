@@ -1,13 +1,14 @@
 import { useState } from "react";
 import Modal from "react-bootstrap/Modal";
+import "../styles/style.css";
 
-function DeleteEmployee({ deleteEmployee }) {
+function DeleteOrder({ deleteOrder }) {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const handleDelete = () => {
-    deleteEmployee();
+    deleteOrder();
     handleClose();
   };
 
@@ -15,16 +16,16 @@ function DeleteEmployee({ deleteEmployee }) {
     <>
       <button
         onClick={handleShow}
-        className="px-4 py-1 text-sm text-red-600 font-semibold rounded-full border border-red-200 hover:text-white hover:bg-red-600 hover:border-transparent focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
+        className=" mr-2 bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
       >
         Delete
       </button>
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} dialogClassName="centered-modal">
         <Modal.Header closeButton>
-          <Modal.Title>Delete employee</Modal.Title>
+          <Modal.Title>Delete order</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Are you sure you want to delete this employee?</p>
+          <p>Are you sure you want to delete this order?</p>
         </Modal.Body>
         <Modal.Footer>
           <button
@@ -45,4 +46,4 @@ function DeleteEmployee({ deleteEmployee }) {
   );
 }
 
-export default DeleteEmployee;
+export default DeleteOrder;

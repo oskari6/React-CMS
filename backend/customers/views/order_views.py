@@ -29,7 +29,7 @@ def orders(request, customer_id):
 
         serializer = OrderSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            order = serializer.save()
             
             for item_data in items_data:
                 item_id = item_data.get('item_id')
@@ -60,13 +60,49 @@ def order(request, customer_id, order_id):
         return Response({"error": "Order not found for this customer."}, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = OrderSerializer(order_instance)
-        return Response({'order': serializer.data})
+        # Serialize order instance
+        order_serializer = OrderSerializer(order_instance)
+        order_data = order_serializer.data
+
+        # Fetch order items and include item details
+        order_items = order_instance.order_items.all()
+        items_data = []
+
+        for order_item in order_items:
+            item_data = {
+                'id': order_item.id,
+                'quantity': order_item.quantity,
+                'item_name': order_item.item.item_name,
+                'price_in_cents': order_item.item.price_in_cents,
+                'total_price_in_cents': order_item.total_price_in_cents,
+            }
+            items_data.append(item_data)
+
+        order_data['order_items'] = items_data
+        order_data['total_cost_in_cents'] = order_instance.total_price_in_cents()
+
+        return Response({'order': order_data})
 
     elif request.method == 'PATCH':
-        serializer = OrderSerializer(order_instance, data=request.data, partial=True)
+        data = request.data
+        order_items_data = data.pop('order_items', None)  # Extract order items data if provided
+        
+        # Update order details
+        serializer = OrderSerializer(order_instance, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
+
+            # Handle order items updates if provided
+            if order_items_data:
+                for item_data in order_items_data:
+                    item_id = item_data.get('id')
+                    try:
+                        order_item_instance = OrderItem.objects.get(id=item_id, order=order_instance)
+                        order_item_instance.quantity = item_data.get('quantity', order_item_instance.quantity)
+                        order_item_instance.save()
+                    except OrderItem.DoesNotExist:
+                        return Response({"error": f"OrderItem with id {item_id} not found."}, status=status.HTTP_400_BAD_REQUEST)
+
             return Response({'order': serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

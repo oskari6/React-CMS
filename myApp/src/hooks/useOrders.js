@@ -42,14 +42,17 @@ export default function useOrders(customerId) {
     const signal = createAbortController();
 
     try {
-      const response = await fetch(`${baseURL}/api/${customerId}/orders/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("access"),
-        },
-        signal,
-      });
+      const response = await fetch(
+        `${baseURL}/api/customers/${customerId}/orders/`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("access"),
+          },
+          signal,
+        }
+      );
       const result = await handleResponse(response);
       if (result) {
         return result.orders || [];

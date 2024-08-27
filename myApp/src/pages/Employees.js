@@ -76,10 +76,7 @@ export default function Employees() {
           ? employees.map((employee) => (
               <Employee
                 key={employee.id}
-                id={employee.id}
-                name={employee.full_name}
-                role={employee.role}
-                img={employee.picture}
+                employee={employee}
                 onUpdate={handleUpdate}
                 onDelete={handleDelete}
               />

@@ -4,34 +4,34 @@ import DeleteEmployee from "./DeleteEmployee";
 import useEmployee from "../hooks/useEmployee";
 import { baseURL } from "../Shared.js";
 
-function Employee({ id, name, role, img, onUpdate, onDelete }) {
-  const imageUrl = `${baseURL}${img}`;
-  const [employee, setEmployee] = useState({
-    id,
-    name,
-    role,
-    img,
+function Employee({ employee, onUpdate, onDelete }) {
+  const imageUrl = `${baseURL}${employee.img}`;
+  const [employeeData, setEmployeeData] = useState({
+    id: employee.id,
+    name: employee.name,
+    role: employee.role,
+    img: employee.img,
   });
 
-  const { updateEmployee, deleteEmployee } = useEmployee(id);
+  const { updateEmployee, deleteEmployee } = useEmployee(employee.id);
 
   useEffect(() => {
-    setEmployee((prevData) => ({
+    setEmployeeData((prevData) => ({
       ...prevData,
-      id,
-      name,
-      role,
-      img,
+      id: employee.id,
+      name: employee.name,
+      role: employee.role,
+      img: employee.img,
     }));
-  }, [id, name, role, img]);
+  }, [employee.id, employee.name, employee.role, employee.img]);
 
   const handleUpdate = (updatedData) => {
     updateEmployee.mutate(updatedData, {
       onSuccess: (data) => {
-        setEmployee((prevData) => ({
+        setEmployeeData((prevData) => ({
           ...prevData,
           ...data,
-          img,
+          img: data.img,
         }));
         if (onUpdate) onUpdate(data); //parent state change
       },
@@ -41,7 +41,7 @@ function Employee({ id, name, role, img, onUpdate, onDelete }) {
   const handleDelete = () => {
     deleteEmployee.mutate(null, {
       onSuccess: () => {
-        if (onDelete) onDelete(id); //parent state change
+        if (onDelete) onDelete(employee.id); //parent state change
       },
     });
   };
@@ -55,14 +55,14 @@ function Employee({ id, name, role, img, onUpdate, onDelete }) {
       />
       <div className="text-center space-y-2 sm:text-left">
         <div className="space-y-0.5">
-          <p className="text-lg text-black font-semibold">{name}</p>
-          <p className="text-slate-500 font-medium">{role}</p>
+          <p className="text-lg text-black font-semibold">{employee.name}</p>
+          <p className="text-slate-500 font-medium">{employee.role}</p>
         </div>
         <DeleteEmployee deleteEmployee={handleDelete} />
         <EditEmployee
-          id={id}
-          name={name}
-          role={role}
+          id={employee.id}
+          name={employee.name}
+          role={employee.role}
           updateEmployee={handleUpdate}
         />
       </div>

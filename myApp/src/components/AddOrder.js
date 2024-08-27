@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Modal from "react-bootstrap/Modal";
 import Items from "../components/Items";
 
@@ -30,9 +30,9 @@ function AddOrder(props) {
   };
 
   //item selection
-  const handleItemsSelection = (selectedItems) => {
-    setSelectedItems(selectedItems); // Update selected items state
-  };
+  const handleItemsSelection = useCallback((selectedItems) => {
+    setSelectedItems(selectedItems);
+  }, []);
 
   //form validation
   const handleSubmit = (e) => {
@@ -55,7 +55,8 @@ function AddOrder(props) {
       ...information,
       items: selectedItems,
     };
-    console.log("order: ", newOrderData);
+    // console.log("selected items: ", selectedItems);
+    // console.log("order: ", newOrderData);
     props.handleNew(newOrderData);
   };
 
