@@ -18,7 +18,12 @@ class EmployeeType(DjangoObjectType):
     class Meta:
         model = Employee
         fields = '__all__'
-        
+
+class ItemType(DjangoObjectType):
+    class Meta:
+        model = Employee
+        fields = '__all__'
+              
 class CreateOrder(graphene.Mutation):
     class Arguments:
         description = graphene.String()
@@ -73,7 +78,7 @@ class CreateEmployee(graphene.Mutation):
         employee.save()
         return CreateEmployee(employee=employee)
     
-# custom query
+# custom graphql query
 class Query(graphene.ObjectType):
     customers = graphene.List(CustomerType)
     orders = graphene.List(OrderType)
