@@ -107,15 +107,16 @@ import os
 load_dotenv()
 
 POSTGRES_USER = os.getenv('POSTGRES_USER')
-POSTGRES_PW = os.getenv('POSTGRES_PW')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+POSTGRES_DB = os.getenv('POSTGRES_DB')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
+        'NAME': POSTGRES_DB,
         'USER': POSTGRES_USER,
-        'PASSWORD': POSTGRES_PW,
-        'HOST': 'django-project.cns6mk0gscoy.eu-north-1.rds.amazonaws.com',
+        'PASSWORD': POSTGRES_PASSWORD,
+        'HOST': 'db',
         'PORT': '5432'
     }
 }
@@ -124,18 +125,6 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
 ]
 
 #AUTH_USER_MODEL = 'customers.User' # for making custom User model
