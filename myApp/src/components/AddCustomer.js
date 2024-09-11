@@ -33,7 +33,6 @@ export default function AddCustomer(props) {
               setName("");
               setIndustry("");
               props.newCustomer(name, industry);
-              handleClose(); //close modal
             }}
             id="editmodal"
             className="w-full max-w-sm"

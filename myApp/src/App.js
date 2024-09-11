@@ -11,6 +11,8 @@ import Orders from "./pages/Orders";
 import { createContext, useState, useEffect } from "react";
 import { baseURL } from "./Shared";
 import Register from "./pages/Register";
+import Layout from "./components/layout/Layout";
+
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 export const LoginContext = createContext();
 
@@ -61,20 +63,20 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <LoginContext.Provider value={[loggedIn, changeLoggedIn]}>
         <BrowserRouter>
-          <Header>
-            <Routes>
-              <Route path="/employees" element={<Employees />} />
-              <Route path="/customers" element={<Customers />} />
-              <Route path="/customers/:id" element={<Customer />} />
-              <Route path="/customers/:id/orders" element={<Orders />} />
-              <Route path="/dictionary" element={<Dictionary />} />
-              <Route path="/dictionary/:search" element={<Definition />} />
-              <Route path="/404" element={<NotFound />} />
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route path="employees" element={<Employees />} />
+              <Route path="customers" element={<Customers />} />
+              <Route path="customers/:id" element={<Customer />} />
+              <Route path="customers/:id/orders" element={<Orders />} />
+              <Route path="dictionary" element={<Dictionary />} />
+              <Route path="dictionary/:search" element={<Definition />} />
+              <Route path="404" element={<NotFound />} />
               <Route path="*" element={<NotFound />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="api/register/" element={<Register />} />
-            </Routes>
-          </Header>
+              <Route path="login" element={<Login />} />
+              <Route path="api/register" element={<Register />} />
+            </Route>
+          </Routes>
         </BrowserRouter>
       </LoginContext.Provider>
     </QueryClientProvider>

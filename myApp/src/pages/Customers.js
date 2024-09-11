@@ -25,9 +25,12 @@ export default function Customers() {
   }, [request]);
 
   async function newCustomer(name, industry) {
-    await appendData({ name, industry }, "customers");
+    setLoading(true);
+    const addedCustomer = await appendData({ name, industry }, "customers");
     if (!errorStatus) {
       toggleShow();
+      setCustomers((prevList) => [...prevList, addedCustomer]);
+      setLoading(false);
     }
   }
 
