@@ -11,7 +11,7 @@ const navigation = [
   { name: "Dictionary", href: "/dictionary" },
 ];
 
-export default function Header(props) {
+export default function Header() {
   const [loggedIn, setLoggedIn] = useContext(LoginContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -155,11 +155,7 @@ export default function Header(props) {
           </>
         )}
       </Disclosure>
-      <div className="bg-gray-300">
-        <div className="mx-autobg-gray-300 min-h-screen p-3">
-          {props.children}
-        </div>
-      </div>
+
     </>
   );
 }

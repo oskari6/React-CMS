@@ -3,6 +3,8 @@ import { baseURL } from "../Shared";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LoginContext } from "../App";
 import GoogleAuth from "../components/GoogleAuth";
+import Content from "../components/layout/Content";
+import Layout from "../components/layout/Layout";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
@@ -48,7 +50,7 @@ export default function Login() {
       });
   };
 
-  async function login(e) {
+  async function handleLogin(e) {
     e.preventDefault();
     const url = baseURL + "/api/token/";
     try {
@@ -104,60 +106,66 @@ export default function Login() {
     }
   }
   return (
-    <div className="m-2 w-full max-w-sm mx-auto mt-20 flex flex-col items-center justify-center">
-      <form
-        className="m-2 w-full max-w-sm mx-auto mt-20 flex flex-col items-center justify-center"
-        id="customer"
-        onSubmit={login}
-      >
-        <div className="md:flex md:items-center mb-6">
-          <div className="md:w-1/4">
-            <label htmlFor="username">Username</label>
-          </div>
-          <div className="md:w-3/4">
-            <input
-              className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
+    <Layout>
+      <Content>
+        <div className="m-2 w-full max-w-sm mx-auto mt-20 flex flex-col items-center justify-center">
+          <form
+            className="m-2 w-[100%] mx-auto mt-20 flex flex-col items-center justify-center"
+            id="customer"
+            onSubmit={handleLogin}
+          >
+            <div className="md:flex md:items-center mb-6">
+              <div className="md:w-1/4">
+                <label className="whitespace-nowrap w-auto" htmlFor="username">
+                  Username / email
+                </label>
+              </div>
+              <div className="md:w-3/4">
+                <input
+                  className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                  }}
+                />
+              </div>
+            </div>
+            <div className="md:flex md:items-center mb-6">
+              <div className="md:w-1/4">
+                <label htmlFor="password">Password</label>
+              </div>
+              <div className="md:w-3/4">
+                <input
+                  className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                  }}
+                />
+              </div>
+            </div>
+            <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+              Login
+            </button>
+          </form>
+          <div>
+            <GoogleAuth
+              clientId={clientId}
+              handleCredentialResponse={handleCredentialResponse}
             />
           </div>
+          {error && (
+            <>
+              <p className="text-red-500 pt-2">{error}</p>
+              <p>Try again.</p>
+            </>
+          )}
         </div>
-        <div className="md:flex md:items-center mb-6">
-          <div className="md:w-1/4">
-            <label htmlFor="password">Password</label>
-          </div>
-          <div className="md:w-3/4">
-            <input
-              className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-            />
-          </div>
-        </div>
-        <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-          Login
-        </button>
-      </form>
-      <div>
-        <GoogleAuth
-          clientId={clientId}
-          handleCredentialResponse={handleCredentialResponse}
-        />
-      </div>
-      {error && (
-        <>
-          <p className="text-red-500 pt-2">{error}</p>
-          <p>Try again.</p>
-        </>
-      )}
-    </div>
+      </Content>
+    </Layout>
   );
 }
