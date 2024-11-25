@@ -2,7 +2,7 @@
 FROM python:3.11
 
 # Set the working directory inside the container
-WORKDIR /backend
+WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -10,13 +10,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements.txt from the local backend directory into the container
-COPY backend/requirements.txt /backend/
+COPY backend/requirements.txt /app/
 
 # Install dependencies
-RUN pip install --no-cache-dir -r /backend/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy the rest of the Django project (local backend directory) into the container
-COPY ./backend /backend/
+COPY backend /app/
 
 # Expose port 8000 for the Django development server
 EXPOSE 8000
