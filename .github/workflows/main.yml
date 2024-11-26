@@ -55,4 +55,4 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Deploy to Docker
-        run: docker-compose up --build -d
+        run: docker compose up --build -d
