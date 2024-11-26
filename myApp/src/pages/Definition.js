@@ -1,23 +1,42 @@
 import { v4 as uuidv4 } from "uuid";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import NotFound from "../components/NotFound";
 import DefinitionSearch from "../components/DefinitionSearch";
-import useCustomers from "../hooks/useCustomers";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Definition() {
   let { search } = useParams();
-  const navigate = useNavigate();
-  //using [{}] to access deeper in the array
-  const {
-    request,
-    data: [{ meanings: word }] = [{}],
-    errorStatus,
-  } = useCustomers("https://api.dictionaryapi.dev/api/v2/entries/en/" + search);
+  const [word, setWord] = useState([]);
+  const [errorStatus, setErrorStatus] = useState(false);
+
+  const request = async () => {
+    try {
+      const response = await fetch(
+        "https://api.dictionaryapi.dev/api/v2/entries/en/" + search,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("access"),
+          },
+        }
+      );
+      if (!response.ok) {
+        setErrorStatus(true);
+        return;
+      }
+      const result = await response.json();
+
+      setWord(result);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+      setErrorStatus(true);
+    }
+  };
 
   useEffect(() => {
     request();
-  }, []);
+  }, [search]);
 
   if (errorStatus === 404) {
     return (
@@ -38,22 +57,16 @@ export default function Definition() {
 
   return (
     <>
-      {word ? ( //grab item with index zero, if word doesnt exists return undefined, same for meanings
-        <>
-          <h1>Here is a definition</h1>
-          {word.map((meaning) => {
-            //ternary if no[] in useState()
-            return (
-              <p key={uuidv4()}>
-                {meaning.partOfSpeech + ": "}
-                {meaning.definitions[0].definition}
-              </p>
-            );
-          })}
-          <p>Search Again</p>
-          <DefinitionSearch />
-        </>
-      ) : null}
+      <h1>Here is a definition</h1>
+      {word.map((entry) =>
+        entry.meanings.map((meaning) =>
+          meaning.definitions.map((definition) => (
+            <p key={uuidv4()}>
+              {meaning.partOfSpeech}: {definition.definition}
+            </p>
+          ))
+        )
+      )}
     </>
   );
 }

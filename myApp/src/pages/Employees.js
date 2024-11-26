@@ -22,6 +22,7 @@ export default function Employees() {
         setLoading(false);
       })
       .catch((error) => {
+        console.error("error fetching employees: ", error);
         setLoading(false);
       });
   }, [request]);
@@ -61,7 +62,7 @@ export default function Employees() {
     );
   };
 
-  if (employees.length === 0 && !loading) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
