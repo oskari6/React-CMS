@@ -1,93 +1,36 @@
-import { Grid, Paper, Button, List, ListItem, Link } from "@mui/material";
-import { blue, grey } from "@mui/material/colors";
+import { Container, Row, Col, ListGroup } from "react-bootstrap";
+import DefaultDashboard from "../dashboards/DefaultDashboard";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="p-5 flex gap-5 p-bg-gray-100">
-      <Grid id="sidebar" item xs={4}>
-        <Paper
-          sx={{
-            height: 1000,
-            width: 250,
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <TaskBar />
-        </Paper>
-      </Grid>
-      <Grid container spacing={2}>
-        {/* First row: 3 equal columns */}
-        <Grid item xs={4}>
-          <Paper
-            sx={{
-              height: 200,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            Box 1
-          </Paper>
-        </Grid>
-        <Grid item xs={4}>
-          <Paper
-            sx={{
-              height: 200,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            Box 2
-          </Paper>
-        </Grid>
-        <Grid item xs={4}>
-          <Paper
-            sx={{
-              height: 200,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            Box 3
-          </Paper>
-        </Grid>
+  const [activeDashboard, setActiveDashboard] = useState(<DefaultDashboard />);
 
-        {/* Second row: 2 equal large columns */}
-        <Grid item xs={6}>
-          <Paper
-            sx={{
-              height: 500,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            Big Box 1
-          </Paper>
-        </Grid>
-        <Grid item xs={6}>
-          <Paper
-            sx={{
-              height: 500,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            Big Box 2
-          </Paper>
-        </Grid>
-      </Grid>
-    </div>
+  const handleNavigation = (component, url) => {
+    setActiveDashboard(component);
+    window.history.pushState(null, "", url); // Changes URL without reloading
+  };
+
+  return (
+    <Container fluid className="bg-gray-100">
+      <Row>
+        <Col md={3}>
+          <TaskBar onNavigate={handleNavigation} />
+        </Col>
+        <Col className="p-2 " md={9}>
+          {activeDashboard}
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
-function TaskBar() {
+function TaskBar({ onNavigate }) {
   const items1 = [
-    { name: "Default", href: "/dashboard-statistics" },
+    {
+      name: "Default",
+      component: <DefaultDashboard />,
+      href: "/dashboard-statistics",
+    },
     { name: "Analytics", href: "/dashboard-analytics" },
   ];
   const items2 = [
@@ -106,30 +49,50 @@ function TaskBar() {
     { name: "Logs", href: "/dashboard-logs" },
   ];
   return (
-    <div>
-      <List>
-        {items1.map((item) => (
-          <Link href={item.href}>
-            <ListItem>{item.name}</ListItem>
-          </Link>
+    <Container className="">
+      <div className="h-[50px]">
+        <span className="font-semibold text-xl">Dashboard</span>
+      </div>
+      <ListGroup className="gap-2 mb-3 flex flex-col">
+        {items1.map((item, index) => (
+          <ListGroup.Item
+            key={index}
+            action
+            onClick={() => onNavigate(item.component, item.url)}
+            className="bg-gray-100 rounded cursor-pointer"
+          >
+            {item.name}
+          </ListGroup.Item>
         ))}
-      </List>
-      <h2>Widget</h2>
-      <List>
-        {items2.map((item) => (
-          <Link href={item.href}>
-            <ListItem>{item.name}</ListItem>
-          </Link>
+      </ListGroup>
+
+      <h4 className="font-semibold">Widget</h4>
+      <ListGroup className="gap-2 mb-3 flex flex-col">
+        {items2.map((item, index) => (
+          <ListGroup.Item
+            key={index}
+            action
+            onClick={() => onNavigate(item.component, item.url)}
+            className="bg-gray-100 rounded cursor-pointer"
+          >
+            {item.name}
+          </ListGroup.Item>
         ))}
-      </List>
-      <h2>Application</h2>
-      <List>
-        {items3.map((item) => (
-          <Link href={item.href}>
-            <ListItem>{item.name}</ListItem>
-          </Link>
+      </ListGroup>
+
+      <h4 className="font-semibold">Application</h4>
+      <ListGroup className="gap-2 mb-3 flex flex-col">
+        {items3.map((item, index) => (
+          <ListGroup.Item
+            key={index}
+            action
+            onClick={() => onNavigate(item.component, item.url)}
+            className="bg-gray-100 rounded cursor-pointer"
+          >
+            {item.name}
+          </ListGroup.Item>
         ))}
-      </List>
-    </div>
+      </ListGroup>
+    </Container>
   );
 }

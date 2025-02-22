@@ -3,8 +3,6 @@ import { baseURL } from "../Shared";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LoginContext } from "../App";
 import GoogleAuth from "../components/GoogleAuth";
-import Content from "../components/layout/Content";
-import Layout from "../components/layout/Layout";
 
 const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 

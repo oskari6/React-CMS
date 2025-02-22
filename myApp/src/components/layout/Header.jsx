@@ -2,7 +2,7 @@ import { useContext, useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { LoginContext } from "../../App";
 import Logout from "../Logout";
-import { Button, TextField } from "@mui/material";
+import { FormControl, Button } from "react-bootstrap";
 
 const navigation = [
   { name: "Home", href: "/home" },
@@ -58,70 +58,72 @@ export default function Header() {
 
   return (
     <div
-      className={`flex w-full justify-center items-center bg-blue-100 py-5 ${
+      className={`flex w-full justify-center items-center bg-blue-100 py-4 ${
         isSticky ? "fixed top-0 left-0 w-full shadow-lg z-50" : ""
       }`}
     >
-      <div className="absolute left-0">
-        <Button onClick={() => setIsPanelOpen(!isPanelOpen)}>☰</Button>
-      </div>
-      <SidePanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)}>
-        {panelItems.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.href}
-            className="block p-3 text-white hover:bg-gray-600"
-          >
-            {item.name}
-          </NavLink>
-        ))}
-      </SidePanel>
-      {loggedIn ? (
-        <div className="flex justify-center items-center px-2">
-          {navigation.map((item) => (
+      <nav>
+        <div className="absolute left-10 text-xl">
+          <Button onClick={() => setIsPanelOpen(!isPanelOpen)}>☰</Button>
+        </div>
+        <SidePanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)}>
+          {panelItems.map((item) => (
             <NavLink
               key={item.name}
-              to={item.href} //with navlink update this to to
-              className={({ isActive }) => {
-                return (
-                  "block rounded-md px-3 text-base font-medium no-underline " +
-                  (!isActive
-                    ? "text-gray-600 hover:bg-gray-700 hover:text-white"
-                    : "bg-blue-300 text-white")
-                );
-              }}
+              to={item.href}
+              className="block p-3 text-white hover:bg-gray-600"
             >
               {item.name}
             </NavLink>
           ))}
-          <NavLink
-            to="/home"
-            onClick={handleLogoutClick}
-            className="px-3 rounded-md font-medium no-underline text-red-500 hover:bg-red-600 hover:text-white"
-          >
-            Logout
-          </NavLink>
-          {isModalOpen && <Logout onClose={handleCloseModal} />}
-          <div className="absolute right-20">
-            <SearchBarNavigation />
+        </SidePanel>
+        {loggedIn ? (
+          <div className="flex justify-center items-center px-2">
+            {navigation.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.href} //with navlink update this to to
+                className={({ isActive }) => {
+                  return (
+                    "block rounded-md px-3 text-base font-medium no-underline " +
+                    (!isActive
+                      ? "text-gray-600 hover:bg-gray-700 hover:text-white"
+                      : "bg-blue-300 text-white")
+                  );
+                }}
+              >
+                {item.name}
+              </NavLink>
+            ))}
+            <NavLink
+              to="/home"
+              onClick={handleLogoutClick}
+              className="px-3 rounded-md font-medium no-underline text-red-500 hover:bg-red-600 hover:text-white"
+            >
+              Logout
+            </NavLink>
+            {isModalOpen && <Logout onClose={handleCloseModal} />}
+            <div className="absolute right-20">
+              <SearchBarNavigation />
+            </div>
           </div>
-        </div>
-      ) : (
-        <div>
-          <NavLink
-            to="/login"
-            className="px-3 rounded-md font-medium no-underline text-gray-500 hover:bg-gray-400 hover:text-white"
-          >
-            Login
-          </NavLink>
-          <NavLink
-            to="/api/register/"
-            className="px-3 rounded-md font-medium no-underline text-gray-500 hover:bg-gray-400 hover:text-white"
-          >
-            Register
-          </NavLink>
-        </div>
-      )}
+        ) : (
+          <div>
+            <NavLink
+              to="/login"
+              className="px-3 rounded-md font-medium no-underline text-gray-500 hover:bg-gray-400 hover:text-white"
+            >
+              Login
+            </NavLink>
+            <NavLink
+              to="/api/register/"
+              className="px-3 rounded-md font-medium no-underline text-gray-500 hover:bg-gray-400 hover:text-white"
+            >
+              Register
+            </NavLink>
+          </div>
+        )}
+      </nav>
     </div>
   );
 }
@@ -151,12 +153,11 @@ function SidePanel({ isOpen, onClose, children }) {
       <button className="absolute top-4 right-4 text-black" onClick={onClose}>
         ✖
       </button>
-      <div className="mt-10">
-        <TextField
-          color="white"
-          variant="outlined"
-          size="small"
+      <div className="flex justify-center items-center flex-col mt-10">
+        <FormControl
+          type="text"
           placeholder="Search"
+          className="w-[80%] rounded p-1"
         />
         <div className="p-4">{children}</div>
       </div>
@@ -167,7 +168,7 @@ function SidePanel({ isOpen, onClose, children }) {
 function SearchBarNavigation() {
   return (
     <div>
-      <TextField variant="outlined" size="small" placeholder="Search" />
+      <FormControl type="text" placeholder="Search" className="rounded p-1" />
     </div>
   );
 }

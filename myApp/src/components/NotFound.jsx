@@ -1,6 +1,6 @@
 export default function NotFound() {
   return (
-    <div className="flex justify-center items-center flex-col mt-10">
+    <div className=" h-[600px] flex justify-center items-center flex-col mt-10">
       <div className="font-bold text-3xl">
         Oops! The site you tried to access doesn't exist
       </div>

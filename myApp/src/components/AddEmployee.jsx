@@ -1,31 +1,14 @@
 import { useState } from "react";
-import Modal from "react-bootstrap/Modal";
+import { Modal } from "react-bootstrap";
 
-function AddEmployee(props) {
+function AddEmployee({ handleNew, visible, onClose }) {
   const [fullname, setFullname] = useState("");
   const [role, setRole] = useState("");
   const [img, setImg] = useState(null);
 
-  const [show, setShow] = useState(false);
-
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
   return (
-    <>
-      <button
-        onClick={handleShow}
-        className="block mx-auto m-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        + Add Employee
-      </button>
-
-      <Modal
-        show={show}
-        onHide={handleClose}
-        backdrop="static"
-        keyboard={false}
-      >
+    <div>
+      <Modal show={visible} onHide={onClose} backdrop="static" keyboard={false}>
         <Modal.Header closeButton>
           <Modal.Title>Add Employee</Modal.Title>
         </Modal.Header>
@@ -33,7 +16,7 @@ function AddEmployee(props) {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              props.handleNew({
+              handleNew({
                 full_name: fullname,
                 role: role,
                 picture: img,
@@ -115,20 +98,20 @@ function AddEmployee(props) {
         <Modal.Footer>
           <button
             className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
-            onClick={handleClose}
+            onClick={onClose}
           >
             Close
           </button>
           <button
             className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
             form="editmodal"
-            onClick={handleClose}
+            type="submit"
           >
             Add Employee
           </button>
         </Modal.Footer>
       </Modal>
-    </>
+    </div>
   );
 }
 

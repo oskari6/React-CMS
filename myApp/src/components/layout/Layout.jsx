@@ -1,9 +1,8 @@
 import Header from "./Header";
 import Footer from "./Footer";
 import { Outlet } from "react-router-dom";
-import Content from "./Content";
 
-export default function Layout({ children }) {
+export default function Layout() {
   return (
     <div className="bg-white">
       <div className="flex justify-center bg-gray-50">
@@ -13,13 +12,11 @@ export default function Layout({ children }) {
           </a>
         </div>
       </div>
-      <nav className="">
-        <Header />
-      </nav>
+      <Header />
       <main>
         <Outlet />
       </main>
-      <Content>{children}</Content>
+
       <Footer />
     </div>
   );

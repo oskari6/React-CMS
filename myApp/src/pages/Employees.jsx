@@ -1,12 +1,12 @@
 import "../index.css";
 import Employee from "../components/Employee"; //component, and invoking with <Employee />
-import { useState, useEffect, useCallback } from "react"; //using states
+import { useState, useEffect } from "react"; //using states
 import AddEmployee from "../components/AddEmployee";
 import useEmployees from "../hooks/useEmployees";
+import { Button } from "react-bootstrap";
 
 export default function Employees() {
-  const [show, setShow] = useState(false); // true to put it open on refresh
-  const toggleShow = useCallback(() => setShow((prevShow) => !prevShow), []);
+  const [visible, setVisible] = useState(false); // true to put it open on refresh
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState([]);
 
@@ -34,12 +34,12 @@ export default function Employees() {
 
       if (addedEmployee && addedEmployee.id) {
         setEmployees((prevList) => [...prevList, addedEmployee]);
-        toggleShow();
       }
     } catch (error) {
       console.error("Failed to add new employee:", error);
     } finally {
       setLoading(false);
+      setVisible(false);
     }
   }
 
@@ -82,7 +82,21 @@ export default function Employees() {
             ))
           : null}
       </div>
-      <AddEmployee handleNew={handleNew} show={show} toggleShow={toggleShow} />
+      <div className="flex">
+        <Button
+          onClick={() => setVisible(!visible)}
+          className="block mx-auto m-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        >
+          + Add Employee
+        </Button>
+      </div>
+      {visible && (
+        <AddEmployee
+          handleNew={handleNew}
+          visible={visible}
+          onClose={() => setVisible(false)}
+        />
+      )}
     </div>
   );
 }
