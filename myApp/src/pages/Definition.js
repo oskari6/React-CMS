@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
 import { useParams, Link } from "react-router-dom";
 import NotFound from "../components/NotFound";
 import DefinitionSearch from "../components/DefinitionSearch";
@@ -61,7 +60,7 @@ export default function Definition() {
       {word.map((entry) =>
         entry.meanings.map((meaning) =>
           meaning.definitions.map((definition) => (
-            <p key={uuidv4()}>
+            <p>
               {meaning.partOfSpeech}: {definition.definition}
             </p>
           ))

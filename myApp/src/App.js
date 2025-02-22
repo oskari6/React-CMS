@@ -1,9 +1,9 @@
 import Employees from "./pages/Employees";
-import Header from "./components/Header";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Customers from "./pages/Customers";
 import Dictionary from "./pages/Dictionary";
 import Definition from "./pages/Definition";
+import Home from "./pages/Home";
 import NotFound from "./components/NotFound";
 import Customer from "./pages/Customer";
 import Login from "./pages/Login";
@@ -65,6 +65,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Layout />}>
+              <Route path="home" element={<Home />} />
               <Route path="employees" element={<Employees />} />
               <Route path="customers" element={<Customers />} />
               <Route path="customers/:id" element={<Customer />} />

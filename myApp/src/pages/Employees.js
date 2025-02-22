@@ -1,7 +1,6 @@
 import "../index.css";
 import Employee from "../components/Employee"; //component, and invoking with <Employee />
 import { useState, useEffect, useCallback } from "react"; //using states
-import { v4 as uuidv4 } from "uuid";
 import AddEmployee from "../components/AddEmployee";
 import useEmployees from "../hooks/useEmployees";
 
@@ -29,7 +28,6 @@ export default function Employees() {
 
   async function handleNew(newEmployee) {
     setLoading(true);
-    newEmployee.uuid = uuidv4();
 
     try {
       const addedEmployee = await appendData(newEmployee);
