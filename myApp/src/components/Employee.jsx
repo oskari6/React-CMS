@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import EditEmployee from "./EditEmployee";
-import DeleteEmployee from "./DeleteEmployee";
-import useEmployee from "../hooks/useEmployee";
+import EditEmployee from "./EditEmployee.jsx";
+import DeleteEmployee from "./DeleteEmployee.jsx";
+import useEmployee from "../hooks/useEmployee.jsx";
 import { baseURL } from "../Shared.js";
 
 function Employee({ employee, onUpdate, onDelete }) {

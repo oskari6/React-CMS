@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
-import Items from "../components/Items";
+import Items from "./Items";
 import useOrder from "../hooks/useOrder";
 import DeleteEmployee from "./DeleteEmployee";
 import DeleteOrder from "./DeleteOrder";

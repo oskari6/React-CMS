@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import Modal from "react-bootstrap/Modal";
-import Items from "../components/Items";
+import Items from "./Items";
 
 function AddOrder(props) {
   const [show, setShow] = useState(false);
