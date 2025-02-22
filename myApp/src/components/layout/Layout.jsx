@@ -1,6 +1,7 @@
 import Header from "./Header";
 import Footer from "./Footer";
 import { Outlet } from "react-router-dom";
+import Content from "./Content";
 
 export default function Layout({ children }) {
   return (
@@ -18,7 +19,7 @@ export default function Layout({ children }) {
       <main>
         <Outlet />
       </main>
-      <div className="mx-autobg-gray-300 min-h-screen p-3">{children}</div>
+      <Content>{children}</Content>
       <Footer />
     </div>
   );

@@ -106,54 +106,52 @@ export default function Login() {
     }
   }
   return (
-    <Content>
-      <div className="m-2 w-full max-w-sm mx-auto mt-20 flex flex-col items-center justify-center">
-        <form
-          className="m-2 w-[100%] mx-auto mt-20 flex flex-col items-center justify-center"
-          id="customer"
-          onSubmit={handleLogin}
-        >
-          <div className="md:flex md:items-center mb-6">
-            <input
-              placeholder="username/email"
-              className="w-[200px] bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
-            />
-          </div>
-          <div className="md:flex md:items-center mb-6">
-            <input
-              placeholder="password"
-              className="w-[200px] bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-            />
-          </div>
-          <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
-            Login
-          </button>
-        </form>
-        <div>
-          <GoogleAuth
-            clientId={clientId}
-            handleCredentialResponse={handleCredentialResponse}
+    <div className="m-2 w-full max-w-sm mx-auto mt-20 flex flex-col items-center justify-center">
+      <form
+        className="m-2 w-[100%] mx-auto mt-20 flex flex-col items-center justify-center"
+        id="customer"
+        onSubmit={handleLogin}
+      >
+        <div className="md:flex md:items-center mb-6">
+          <input
+            placeholder="username/email"
+            className="w-[200px] bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+            id="username"
+            type="text"
+            value={username}
+            onChange={(e) => {
+              setUsername(e.target.value);
+            }}
           />
         </div>
-        {error && (
-          <>
-            <p className="text-red-500 pt-2">{error}</p>
-            <p>Try again.</p>
-          </>
-        )}
+        <div className="md:flex md:items-center mb-6">
+          <input
+            placeholder="password"
+            className="w-[200px] bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
+          />
+        </div>
+        <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded">
+          Login
+        </button>
+      </form>
+      <div>
+        <GoogleAuth
+          clientId={clientId}
+          handleCredentialResponse={handleCredentialResponse}
+        />
       </div>
-    </Content>
+      {error && (
+        <>
+          <p className="text-red-500 pt-2">{error}</p>
+          <p>Try again.</p>
+        </>
+      )}
+    </div>
   );
 }

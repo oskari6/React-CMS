@@ -1,7 +1,8 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import { LoginContext } from "../../App";
 import Logout from "../Logout";
+import { Button, TextField } from "@mui/material";
 
 const navigation = [
   { name: "Home", href: "/home" },
@@ -13,6 +14,36 @@ const navigation = [
 export default function Header() {
   const [loggedIn, setLoggedIn] = useContext(LoginContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 150) {
+        // Adjust this value for when navbar should stick
+        setIsSticky(true);
+      } else {
+        setIsSticky(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const panelItems = [
+    { name: "item1", href: "/item1" },
+    { name: "item2", href: "/item2" },
+    { name: "item3", href: "/item3" },
+    { name: "item3", href: "/item3" },
+    { name: "item3", href: "/item3" },
+    { name: "item3", href: "/item3" },
+    { name: "item3", href: "/item3" },
+    { name: "item3", href: "/item3" },
+    { name: "item3", href: "/item3" },
+    { name: "item3", href: "/item3" },
+    { name: "item3", href: "/item3" },
+  ];
 
   const handleLogoutClick = (e) => {
     e.preventDefault(); // Prevent the default link behavior
@@ -26,7 +57,25 @@ export default function Header() {
   };
 
   return (
-    <div className="flex w-full justify-center items-center bg-blue-100 py-5">
+    <div
+      className={`flex w-full justify-center items-center bg-blue-100 py-5 ${
+        isSticky ? "fixed top-0 left-0 w-full shadow-lg z-50" : ""
+      }`}
+    >
+      <div className="absolute left-0">
+        <Button onClick={() => setIsPanelOpen(!isPanelOpen)}>☰</Button>
+      </div>
+      <SidePanel isOpen={isPanelOpen} onClose={() => setIsPanelOpen(false)}>
+        {panelItems.map((item) => (
+          <NavLink
+            key={item.name}
+            to={item.href}
+            className="block p-3 text-white hover:bg-gray-600"
+          >
+            {item.name}
+          </NavLink>
+        ))}
+      </SidePanel>
       {loggedIn ? (
         <div className="flex justify-center items-center px-2">
           {navigation.map((item) => (
@@ -53,6 +102,9 @@ export default function Header() {
             Logout
           </NavLink>
           {isModalOpen && <Logout onClose={handleCloseModal} />}
+          <div className="absolute right-20">
+            <SearchBarNavigation />
+          </div>
         </div>
       ) : (
         <div>
@@ -70,6 +122,52 @@ export default function Header() {
           </NavLink>
         </div>
       )}
+    </div>
+  );
+}
+
+function SidePanel({ isOpen, onClose, children }) {
+  const panelRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (panelRef.current && !panelRef.current.contains(event.target)) {
+        onClose();
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen, onClose]);
+  return (
+    <div
+      className={`z-10 fixed top-0 left-0 h-full w-64 bg-gray-500 text-white shadow-lg transiton-transform duration-300 
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+      ref={panelRef}
+    >
+      <button className="absolute top-4 right-4 text-black" onClick={onClose}>
+        ✖
+      </button>
+      <div className="mt-10">
+        <TextField
+          color="white"
+          variant="outlined"
+          size="small"
+          placeholder="Search"
+        />
+        <div className="p-4">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function SearchBarNavigation() {
+  return (
+    <div>
+      <TextField variant="outlined" size="small" placeholder="Search" />
     </div>
   );
 }
