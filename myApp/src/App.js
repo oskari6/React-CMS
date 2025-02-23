@@ -12,6 +12,7 @@ import { createContext, useState, useEffect } from "react";
 import { baseURL } from "./Shared";
 import Register from "./pages/Register";
 import Layout from "./components/layout/Layout";
+import Items from "./pages/Items";
 
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 export const LoginContext = createContext();
@@ -71,6 +72,8 @@ function App() {
               <Route path="customers" element={<Customers />} />
               <Route path="customers/:id" element={<Customer />} />
               <Route path="customers/:id/orders" element={<Orders />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="items" element={<Items />} />
               <Route path="dictionary" element={<Dictionary />} />
               <Route path="dictionary/:search" element={<Definition />} />
               <Route path="404" element={<NotFound />} />

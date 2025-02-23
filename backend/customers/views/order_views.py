@@ -7,8 +7,15 @@ from customers.models.order_item import OrderItem
 from customers.models.customer import Customer
 from customers.serializers.order_serializer import OrderSerializer
 
+@api_view(['GET'])
+def orders(request):
+    if request.method == 'GET':
+        data = Order.objects.all()
+        serializer = OrderSerializer(data, many=True)
+        return Response({"orders": serializer.data})
+
 @api_view(['GET', 'POST'])
-def orders(request, customer_id):
+def orders_customer(request, customer_id):
     try:
         customer_instance = Customer.objects.get(pk=customer_id)
     except Customer.DoesNotExist:

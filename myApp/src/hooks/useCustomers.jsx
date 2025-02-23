@@ -38,7 +38,7 @@ export function useCustomers() {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["customers"]); // Refresh the customer list
+      queryClient.invalidateQueries(["customers"]);
     },
   });
 
@@ -74,7 +74,7 @@ export function useCustomers() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["customers"]); // Refresh the list
+      queryClient.invalidateQueries(["customers"]);
     },
   });
 

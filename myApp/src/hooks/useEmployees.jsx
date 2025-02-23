@@ -48,7 +48,7 @@ export function useEmployees() {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["employees"]); // Refresh the employee list
+      queryClient.invalidateQueries(["employees"]);
     },
   });
 
@@ -98,7 +98,7 @@ export function useEmployees() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["employees"]); // Refresh the list
+      queryClient.invalidateQueries(["employees"]);
     },
   });
 

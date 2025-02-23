@@ -1,7 +1,7 @@
 import { useItems } from "../../hooks/useItems";
 import Link, { useEffect, useState } from "react";
 
-export default function Items({ handleItemsSelection }) {
+export default function ItemSelection({ handleItemsSelection }) {
   const [selected, setSelected] = useState([]);
   const [items, setItems] = useState([]);
 
@@ -65,7 +65,7 @@ export default function Items({ handleItemsSelection }) {
                     onChange={() => handleCheckboxChange(item.id)}
                   />
                   <span>
-                    Item {item.item_number}. {item.item_name} -
+                    Item {item.item_number}. {item.name} -
                     {item.price_in_cents / 100} USD
                   </span>
                 </label>

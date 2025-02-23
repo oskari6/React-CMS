@@ -5,19 +5,16 @@ import { baseURL } from "../Shared";
 export function useOrders(customerId, orderId) {
   const queryClient = useQueryClient();
 
-  // GET customers
+  // GET all orders
   const { data, error, status } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
-      const res = await fetch(
-        `${baseURL}/api/customers/${customerId}/orders/`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("access"),
-          },
-        }
-      );
+      const res = await fetch(`${baseURL}/api/orders/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+      });
       if (!res.ok) throw new Error("Failed to fetch orders");
       const result = await res.json();
       return result.orders;
@@ -25,7 +22,7 @@ export function useOrders(customerId, orderId) {
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  // POST customer
+  // POST order
   const createOrder = useMutation({
     mutationFn: async (newOrder) => {
       const res = await fetch(
@@ -44,7 +41,7 @@ export function useOrders(customerId, orderId) {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["orders"]); // Refresh the customer list
+      queryClient.invalidateQueries(["orders"]);
     },
   });
 
@@ -83,7 +80,7 @@ export function useOrders(customerId, orderId) {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["orders"]); // Refresh the list
+      queryClient.invalidateQueries(["orders"]);
     },
   });
 
@@ -93,8 +90,28 @@ export function useOrders(customerId, orderId) {
 export function useOrder(customerId, orderId) {
   const navigate = useNavigate();
 
-  // GET order
-  const { data, error, status } = useQuery({
+  // GET all orders for customer
+  const { customerOrders, error1, status1 } = useQuery({
+    queryKey: ["orders"],
+    queryFn: async () => {
+      const res = await fetch(
+        `${baseURL}/api/customers/${customerId}/orders/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("access"),
+          },
+        }
+      );
+      if (!res.ok) throw new Error("Failed to fetch orders");
+      const result = await res.json();
+      return result.orders;
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
+
+  // GET order of a customer
+  const { customerOrder, error2, status2 } = useQuery({
     queryKey: ["order", orderId],
     queryFn: async () => {
       const res = await fetch(
@@ -117,5 +134,5 @@ export function useOrder(customerId, orderId) {
       return result.order;
     },
   });
-  return { data, error, status };
+  return { customerOrders, customerOrder, error1, status1, error2, status2 };
 }

@@ -1,5 +1,5 @@
 import Modal from "react-bootstrap/Modal";
-import Items from "../resources/Items";
+import ItemSelection from "../resources/ItemSelection";
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { useOrders } from "../../hooks/useOrders";
@@ -214,7 +214,7 @@ export function OrderModal({ order }) {
                 />
               </div>
               <div>
-                <Items handleItemsSelection={handleItemsSelection} />
+                <ItemSelection handleItemsSelection={handleItemsSelection} />
               </div>
             </form>
           )}
@@ -250,10 +250,7 @@ export function OrderModal({ order }) {
   );
 }
 
-export function AddOrder(props) {
-  const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+export function AddOrder({ visible, onClose, createOrder }) {
   const [error, setError] = useState("");
 
   //form fields
@@ -303,37 +300,30 @@ export function AddOrder(props) {
       ...information,
       items: selectedItems,
     };
-    // console.log("selected items: ", selectedItems);
-    // console.log("order: ", newOrderData);
-    props.handleNew(newOrderData);
+    createOrder(newOrderData);
   };
 
   return (
     <>
       <button
-        onClick={handleShow}
+        onClick={onClose}
         className="no-underline bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
       >
         New Order
       </button>
 
-      <Modal
-        show={show}
-        onHide={handleClose}
-        backdrop="static"
-        keyboard={false}
-      >
+      <Modal show={visible} onHide={onClose} backdrop="static" keyboard={false}>
         <Modal.Header closeButton>
           <Modal.Title>Creating an order</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* Form for adding an order */}
           <form
             onSubmit={handleSubmit}
             id="newOrderForm"
             className="w-full max-w-sm"
           >
             <div className="md:flex md:items-center mb-6">
+              {error}
               <div className="md:w-1/3">
                 <label
                   className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4"
@@ -437,7 +427,7 @@ export function AddOrder(props) {
               <p className="flex justify-center text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4 ml-20">
                 Items
               </p>
-              <Items handleItemsSelection={handleItemsSelection} />
+              <ItemSelection handleItemsSelection={handleItemsSelection} />
             </div>
             <div className="md:flex justify-center mb-6">
               <div className="md:w-1/3">
@@ -472,7 +462,7 @@ export function AddOrder(props) {
         <Modal.Footer>
           <button
             className="bg-slate-400 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded"
-            onClick={handleClose}
+            onClick={onClose}
           >
             Close
           </button>

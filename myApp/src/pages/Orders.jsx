@@ -1,47 +1,25 @@
 import { useParams, Link } from "react-router-dom";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useOrders } from "../hooks/useOrders";
 import { AddOrder, OrderModal } from "../components/modals/OrderModals";
 
 export default function Orders() {
   const { id } = useParams();
-  const [show, setShow] = useState(false); //true to put it open on refresh
-  const toggleShow = useCallback(() => setShow((prevShow) => !prevShow), []);
-  const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [orders, setOrders] = useState([]);
 
-  const { request, appendData, errorStatus } = useOrders(id);
+  const { data, createOrder, updateOrder, deleteOrder, error, status } =
+    useOrders();
 
   useEffect(() => {
-    request()
-      .then((orders) => {
-        if (orders && orders.length > 0) {
-          setOrders(orders); // Set the employee list with the returned data
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        setLoading(false);
-      });
-  }, [request]);
-
-  async function handleNew(newOrder) {
-    try {
-      const addedOrder = await appendData(newOrder);
-
-      if (addedOrder && addedOrder.id) {
-        setOrders((prevList) => [...prevList, addedOrder]);
-        toggleShow();
-      }
-    } catch (error) {
-      console.error("Failed to add new order:", error);
-    } finally {
-      setLoading(false);
+    if (data) {
+      setOrders(data);
     }
-  }
+  }, [data]);
 
   const handleUpdate = (updatedData) => {
     const updatedOrder = updatedData;
+
     setOrders((prevList) =>
       prevList.map((order) =>
         order.id === updatedOrder.id ? { ...order, ...updatedOrder } : order
@@ -53,16 +31,14 @@ export default function Orders() {
     setOrders((prevList) => prevList.filter((order) => order.id !== id));
   };
 
-  if (loading) {
+  if (status === "loading") {
     return <p>Loading orders data...</p>;
   }
 
   return (
     <div className="p-3">
       <h1 className="pb-5 text-gray-700 font-bold">Orders</h1>
-      {errorStatus ? (
-        <div className="text-red-500">Error: {errorStatus}</div>
-      ) : null}
+      {error ? <div className="text-red-500">Error: {error}</div> : null}
       {orders.length > 0 ? (
         <div>
           <ul>
@@ -94,7 +70,11 @@ export default function Orders() {
       ) : (
         <div>
           <p>No orders were found for this customer</p>
-          <AddOrder handleNew={handleNew} />
+          <AddOrder
+            visible={visible}
+            onClose={() => setVisible(!visible)}
+            createOrder={createOrder.mutate}
+          />
         </div>
       )}
     </div>
