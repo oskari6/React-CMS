@@ -1,83 +1,48 @@
 import "../index.css";
-import Employee from "../components/Employee"; //component, and invoking with <Employee />
-import { useState, useEffect } from "react"; //using states
-import AddEmployee from "../components/AddEmployee";
-import useEmployees from "../hooks/useEmployees";
+import { useState, useEffect } from "react";
+import {
+  AddEmployee,
+  EmployeeModal,
+} from "../components/modals/EmployeeModals";
 import { Button } from "react-bootstrap";
+import { useEmployees } from "../hooks/useEmployees";
 
 export default function Employees() {
-  const [visible, setVisible] = useState(false); // true to put it open on refresh
+  const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState([]);
 
-  const { request, appendData, errorStatus } = useEmployees();
+  const {
+    data,
+    createEmployee,
+    updateEmployee,
+    deleteEmployee,
+    error,
+    status,
+  } = useEmployees();
 
   useEffect(() => {
-    request()
-      .then((employees) => {
-        if (employees && employees.length > 0) {
-          setEmployees(employees); // Set the employee list with the returned data
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("error fetching employees: ", error);
-        setLoading(false);
-      });
-  }, [request]);
-
-  async function handleNew(newEmployee) {
-    setLoading(true);
-
-    try {
-      const addedEmployee = await appendData(newEmployee);
-
-      if (addedEmployee && addedEmployee.id) {
-        setEmployees((prevList) => [...prevList, addedEmployee]);
-      }
-    } catch (error) {
-      console.error("Failed to add new employee:", error);
-    } finally {
-      setLoading(false);
-      setVisible(false);
+    if (data) {
+      setEmployees(data);
     }
-  }
+  }, [data]);
 
-  const handleUpdate = (updatedData) => {
-    const updatedEmployee = updatedData;
-    setEmployees((prevList) =>
-      prevList.map((employee) =>
-        employee.id === updatedEmployee.id
-          ? { ...employee, ...updatedEmployee }
-          : employee
-      )
-    );
-  };
-
-  const handleDelete = (id) => {
-    setEmployees((prevList) =>
-      prevList.filter((employee) => employee.id !== id)
-    );
-  };
-
-  if (loading) {
+  if (status === "loading") {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
       <h1 className="flex justify-center items-center mb-4">Employees</h1>
-      {errorStatus ? (
-        <div className="text-red-500">Error: {errorStatus}</div>
-      ) : null}
+      {error ? <div className="text-red-500">Error: {error}</div> : null}
       <div className="flex flex-wrap justify-center">
         {employees.length > 0
           ? employees.map((employee) => (
-              <Employee
+              <EmployeeModal
                 key={employee.id}
                 employee={employee}
-                onUpdate={handleUpdate}
-                onDelete={handleDelete}
+                onUpdate={updateEmployee}
+                onDelete={deleteEmployee}
               />
             ))
           : null}
@@ -92,7 +57,7 @@ export default function Employees() {
       </div>
       {visible && (
         <AddEmployee
-          handleNew={handleNew}
+          handleNew={createEmployee}
           visible={visible}
           onClose={() => setVisible(false)}
         />

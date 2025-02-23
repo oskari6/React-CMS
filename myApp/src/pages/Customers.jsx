@@ -1,49 +1,28 @@
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import AddCustomer from "../components/AddCustomer";
-import useCustomers from "../hooks/useCustomers";
+import AddCustomer from "../components/modals/CustomerModals";
+import { useCustomers } from "../hooks/useCustomers";
 
 export default function Customers() {
-  const [show, setShow] = useState(false); //true to put it open on refresh
-  const toggleShow = useCallback(() => setShow((prevShow) => !prevShow), []);
-  const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [customers, setCustomers] = useState([]);
 
-  const { request, appendData, errorStatus } = useCustomers();
+  const { data, createCustomer, error, status } = useCustomers();
 
   useEffect(() => {
-    request()
-      .then((customers) => {
-        if (customers && customers.length > 0) {
-          setCustomers(customers);
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        setLoading(false);
-      });
-  }, [request]);
-
-  async function newCustomer(name, industry) {
-    setLoading(true);
-    const addedCustomer = await appendData({ name, industry }, "customers");
-    if (!errorStatus) {
-      toggleShow();
-      setCustomers((prevList) => [...prevList, addedCustomer]);
-      setLoading(false);
+    if (data) {
+      setCustomers(data);
     }
-  }
+  });
 
-  if (loading) {
+  if (status === "loading") {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="max-w-[500px] mx-auto">
       <h1 className="flex justify-center items-center mb-4">Customers</h1>
-      {errorStatus ? (
-        <div className="text-red-500">Error: {errorStatus}</div>
-      ) : null}
+      {error ? <div className="text-red-500">Error: {error}</div> : null}
       {customers.length > 0
         ? customers.map((customer) => {
             return (
@@ -61,9 +40,9 @@ export default function Customers() {
           })
         : null}
       <AddCustomer
-        newCustomer={newCustomer}
-        show={show}
-        toggleShow={toggleShow}
+        newCustomer={createCustomer}
+        show={visible}
+        toggleShow={() => setVisible(!visible)}
       />
     </div>
   );

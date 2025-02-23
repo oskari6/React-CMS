@@ -1,102 +1,120 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { baseURL } from "../Shared";
 
-export default function useCustomers() {
-  const [errorStatus, setErrorStatus] = useState(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const abortControllerRef = useRef(null);
-
-  // Handle HTTP response and errors
-  const handleResponse = useCallback(
-    async (response) => {
-      if (response.status === 401) {
-        navigate("/login", {
-          state: {
-            previousUrl: location.pathname,
-          },
-        });
-        return null;
-      }
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    },
-    [navigate, location]
-  );
-
-  //http error handled gracefully
-  const createAbortController = () => {
-    abortControllerRef.current = new AbortController();
-    return abortControllerRef.current.signal;
-  };
+export function useCustomers() {
+  const queryClient = useQueryClient();
 
   // GET customers
-  const request = useCallback(async () => {
-    const signal = createAbortController();
-
-    try {
-      const response = await fetch(`${baseURL}/api/customers/`, {
-        method: "GET",
+  const {
+    data: customers,
+    error,
+    status,
+  } = useQuery({
+    queryKey: ["customers"],
+    queryFn: async () => {
+      const res = await fetch(`${baseURL}/api/customers/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("access"),
         },
-        signal,
       });
-      const result = await handleResponse(response);
-      if (result) {
-        return result.customers || [];
-      }
-    } catch (error) {
-      if (error.name === "AbortError") {
-      } else {
-        setErrorStatus(error.message);
-      }
-    }
-  }, [handleResponse]);
+      if (!res.ok) throw new Error("Failed to fetch customers");
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
 
   // POST customer
-  const appendData = useCallback(
-    async (newData) => {
-      const signal = createAbortController();
-
-      try {
-        const response = await fetch(`${baseURL}/api/customers/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + localStorage.getItem("access"),
-          },
-          body: JSON.stringify(newData),
-          signal,
-        });
-
-        const result = await handleResponse(response);
-
-        if (result) {
-          return result.customer;
-        }
-      } catch (error) {
-        if (error.name === "AbortError") {
-        } else {
-          setErrorStatus(error.message);
-        }
-      }
+  const createCustomer = useMutation({
+    mutationFn: async (newCustomer) => {
+      const res = await fetch(`${baseURL}/api/customers/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+        body: JSON.stringify(newCustomer),
+      });
+      if (!res.ok) throw new Error("Failed to create customer");
+      return res.json();
     },
-    [handleResponse]
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries(["customers"]); // Refresh the customer list
+    },
+  });
 
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
+  // PATCH customer
+  const updateCustomer = useMutation({
+    mutationFn: async ({ id, updatedData }) => {
+      const res = await fetch(`${baseURL}/api/customers/${id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+        body: JSON.stringify(updatedData),
+      });
+      if (!res.ok) throw new Error("Failed to update customer");
+      return res.json();
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries(["customer", id]); // Refresh single customer
+      queryClient.invalidateQueries(["customers"]); // Refresh customer list
+    },
+  });
+
+  // DELETE customer
+  const deleteCustomer = useMutation({
+    mutationFn: async (id) => {
+      await fetch(`${baseURL}/api/customers/${id}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["customers"]); // Refresh the list
+    },
+  });
+
+  return {
+    customers,
+    createCustomer,
+    updateCustomer,
+    deleteCustomer,
+    error,
+    status,
+  };
+}
+
+export function useCustomer(id) {
+  const navigate = useNavigate();
+
+  // GET customer
+  const {
+    data: customer,
+    error,
+    status,
+  } = useQuery({
+    queryKey: ["customer", id],
+    queryFn: async () => {
+      const res = await fetch(`${baseURL}/api/customers/${id}/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+      });
+      if (res.status === 401) {
+        navigate("/customers", {
+          state: { previousUrl: `/customers/${id}` },
+        });
+        throw new Error("Unauthorized");
       }
-    };
-  }, []);
-
-  return { request, appendData, errorStatus }; //{} instead of [] lets you have properties with the same names and allows destructuring
-  //less chance of typing incorrectly
+      if (!res.ok) throw new Error("Failed to fetch customer");
+      return res.json();
+    },
+  });
+  return { customer, error, status };
 }

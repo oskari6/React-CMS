@@ -1,26 +1,27 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import NotFound from "../components/NotFound";
-import useCustomer from "../hooks/useCustomer";
+import { useCustomer, useCustomers } from "../hooks/useCustomers";
 
 export default function Customer() {
   const { id } = useParams();
-  const [customerData, setCustomerData] = useState(null);
+  const [customer, setCustomer] = useState(null);
   const [changed, setChanged] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
 
-  const { data, errorStatus, updateCustomer, deleteCustomer } = useCustomer(id);
+  const { data, error, status } = useCustomer(id);
+  const { updateCustomer, deleteCustomer, error2, status2 } = useCustomers(id);
 
   useEffect(() => {
     if (data) {
-      setCustomerData(data.customer);
+      setCustomer(data.customer);
       setLoading(false); // Data has been loaded
     }
-  }, [data]);
+  }, [customer]);
 
   const handleInputChange = (field, value) => {
-    setCustomerData((prev) => {
+    setCustomer((prev) => {
       const updatedCustomer = { ...prev, [field]: value };
       const hasChanged =
         JSON.stringify(updatedCustomer) !== JSON.stringify(data.customer);
@@ -30,30 +31,13 @@ export default function Customer() {
     setSaved(false);
   };
 
-  const handleUpdateCustomer = (e) => {
-    e.preventDefault();
-    if (customerData) {
-      updateCustomer.mutate(customerData, {
-        onSuccess: () => {
-          setSaved(true);
-        },
-      });
-    }
-  };
-
-  const handleDeleteCustomer = () => {
-    deleteCustomer.mutate();
-  };
-
   if (loading) {
     return <p>Loading customer data...</p>; // Show loading message until tempCustomer is set
   }
 
   return (
     <div className="p-3">
-      {errorStatus ? (
-        <div className="text-red-500">Error: {errorStatus}</div>
-      ) : null}
+      {error ? <div className="text-red-500">Error: {error}</div> : null}
       {!data ? (
         <>
           <NotFound />
@@ -64,7 +48,7 @@ export default function Customer() {
           <form
             className="w-full max-w-sm"
             id="customer"
-            onSubmit={handleUpdateCustomer}
+            onSubmit={updateCustomer}
           >
             <div className="md:flex md:items-center mb-6">
               <div className="md:w-1/4">
@@ -75,7 +59,7 @@ export default function Customer() {
                   className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                   id="name"
                   type="text"
-                  value={customerData?.name || ""}
+                  value={customer?.name || ""}
                   onChange={(e) => handleInputChange("name", e.target.value)}
                 />
               </div>
@@ -89,7 +73,7 @@ export default function Customer() {
                   className="bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
                   id="industry"
                   type="text"
-                  value={customerData?.industry || ""}
+                  value={customer?.industry || ""}
                   onChange={(e) =>
                     handleInputChange("industry", e.target.value)
                   }
@@ -102,7 +86,7 @@ export default function Customer() {
               <button
                 className="bg-red-400 hover:bg-red-700 text-white font-bold py-2 px-4 mr-2 rounded"
                 onClick={() => {
-                  setCustomerData(data.customer);
+                  setCustomer(data.customer);
                   setChanged(false);
                 }}
               >
@@ -119,7 +103,7 @@ export default function Customer() {
           <div>
             <button
               className="bg-slate-800 hover:bg-slate-500 text-white font-bold py-2 px-4 rounded"
-              onClick={handleDeleteCustomer}
+              onClick={deleteCustomer}
             >
               Delete
             </button>

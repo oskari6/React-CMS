@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 def employees(request):
     if request.method == 'GET':
         data = Employee.objects.all()
-        serializer = EmployeeSerializer(data, many=True)
+        serializer = EmployeeSerializer(data, many=True, context={'request':request})
         return Response({'employees': serializer.data})
     
     elif request.method == 'POST':
@@ -28,7 +28,7 @@ def employee(request, id):
     employee = get_object_or_404(Employee, id=id)
     
     if request.method == 'GET':
-        serializer = EmployeeSerializer(employee)
+        serializer = EmployeeSerializer(employee, context={'request':request})
         return Response({'employee': serializer.data})
     
     elif request.method == 'PATCH':

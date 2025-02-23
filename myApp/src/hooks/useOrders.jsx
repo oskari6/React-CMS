@@ -1,104 +1,125 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { baseURL } from "../Shared";
 
-export default function useOrders(customerId) {
-  const [errorStatus, setErrorStatus] = useState(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const abortControllerRef = useRef(null);
+export function useOrders(customerId, orderId) {
+  const queryClient = useQueryClient();
 
-  // Handle HTTP response and errors
-  const handleResponse = useCallback(
-    async (response) => {
-      if (response.status === 401) {
-        navigate("/login", {
-          state: {
-            previousUrl: location.pathname,
-          },
-        });
-        return null;
-      }
-      if (!response.ok) {
-        if (response.status === 404) {
-          return null; //if no orders on customer
-        } else {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      }
-      return response.json();
-    },
-    [navigate, location]
-  );
-
-  //http error handled gracefully
-  const createAbortController = () => {
-    abortControllerRef.current = new AbortController();
-    return abortControllerRef.current.signal;
-  };
-
-  // GET orders
-  const request = useCallback(async () => {
-    const signal = createAbortController();
-
-    try {
-      const response = await fetch(
+  // GET customers
+  const {
+    data: orders,
+    error,
+    status,
+  } = useQuery({
+    queryKey: ["orders"],
+    queryFn: async () => {
+      const res = await fetch(
         `${baseURL}/api/customers/${customerId}/orders/`,
         {
-          method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + localStorage.getItem("access"),
           },
-          signal,
         }
       );
-      const result = await handleResponse(response);
-      if (result) {
-        return result.orders || [];
-      }
-    } catch (error) {
-      if (error.name === "AbortError") {
-      } else {
-        setErrorStatus(error.message);
-      }
-    }
-    return [];
-  }, [handleResponse]);
-
-  // POST order
-  const appendData = useCallback(
-    async (newData) => {
-      const signal = createAbortController();
-
-      try {
-        const response = await fetch(
-          `${baseURL}/api/customers/${customerId}/orders/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + localStorage.getItem("access"),
-            },
-            body: JSON.stringify(newData),
-            signal,
-          }
-        );
-
-        const result = await handleResponse(response);
-
-        if (result) {
-          return result.order;
-        }
-      } catch (error) {
-        if (error.name === "AbortError") {
-        } else {
-          setErrorStatus(error.message);
-        }
-      }
+      if (!res.ok) throw new Error("Failed to fetch orders");
+      return res.json();
     },
-    [handleResponse]
-  );
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
 
-  return { request, appendData, errorStatus };
+  // POST customer
+  const createOrder = useMutation({
+    mutationFn: async (newOrder) => {
+      const res = await fetch(
+        `${baseURL}/api/customers/${customerId}/orders/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("access"),
+          },
+          body: JSON.stringify(newOrder),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to create order");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["orders"]); // Refresh the customer list
+    },
+  });
+
+  //PATCH order
+  const updateOrder = useMutation({
+    mutationFn: async ({ id, updatedData }) => {
+      const res = await fetch(
+        `${baseURL}/api/customers/${customerId}/orders/${id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("access"),
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to update order");
+      return res.json();
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries(["order", id]);
+      queryClient.invalidateQueries(["orders"]);
+    },
+  });
+
+  // DELETE customer
+  const deleteOrder = useMutation({
+    mutationFn: async (id) => {
+      await fetch(`${baseURL}/api/customers/${customerId}/orders/${orderId}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["orders"]); // Refresh the list
+    },
+  });
+
+  return { orders, createOrder, updateOrder, deleteOrder, error, status };
+}
+
+export function useOrder(customerId, orderId) {
+  const navigate = useNavigate();
+
+  // GET order
+  const {
+    data: order,
+    error,
+    status,
+  } = useQuery({
+    queryKey: ["order", orderId],
+    queryFn: async () => {
+      const res = await fetch(
+        `${baseURL}/api/customers/${customerId}/orders/${orderId}/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + localStorage.getItem("access"),
+          },
+        }
+      );
+      if (res.status === 401) {
+        navigate("/orders", {
+          state: { previousUrl: `/orders/${orderId}` },
+        });
+        throw new Error("Unauthorized");
+      }
+      if (!res.ok) throw new Error("Failed to fetch order");
+      return res.json();
+    },
+  });
+  return { order, error, status };
 }

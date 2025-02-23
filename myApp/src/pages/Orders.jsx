@@ -1,8 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import useOrders from "../hooks/useOrders";
-import AddOrder from "../components/AddOrder";
-import Order from "../components/Order";
+import { useOrders } from "../hooks/useOrders";
+import { AddOrder, OrderModal } from "../components/modals/OrderModals";
 
 export default function Orders() {
   const { id } = useParams();
@@ -76,7 +75,7 @@ export default function Orders() {
                   {order.created_time.split("T")[0]}{" "}
                   <span className="ml-5">Order #{order.id}</span>
                 </span>
-                <Order
+                <OrderModal
                   key={order.id}
                   order={order}
                   onUpdate={handleUpdate}

@@ -1,25 +1,17 @@
-import useItems from "../hooks/useItems";
+import { useItems } from "../../hooks/useItems";
 import Link, { useEffect, useState } from "react";
 
 export default function Items({ handleItemsSelection }) {
-  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
   const [items, setItems] = useState([]);
 
-  const { request, errorStatus } = useItems();
+  const { data, error, status } = useItems();
 
   useEffect(() => {
-    request()
-      .then((items) => {
-        if (items && items.length > 0) {
-          setItems(items); // Set the employee list with the returned data
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        setLoading(false);
-      });
-  }, [request]);
+    if (data) {
+      setItems(data);
+    }
+  }, [data]);
 
   const handleCheckboxChange = (itemId) => {
     setSelected(
@@ -54,14 +46,12 @@ export default function Items({ handleItemsSelection }) {
     }, 0);
   };
 
-  if (loading) {
+  if (status === "loading") {
     return <p>Loading items...</p>;
   }
   return (
     <div className="p-3 flex flex-col items-center">
-      {errorStatus ? (
-        <div className="text-red-500">Error: {errorStatus}</div>
-      ) : null}
+      {error ? <div className="text-red-500">Error: {error}</div> : null}
       {items.length > 0 ? (
         <>
           <ul>

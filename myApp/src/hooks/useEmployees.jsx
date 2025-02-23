@@ -1,112 +1,146 @@
-import { useState, useCallback, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { baseURL } from "../Shared";
 
-export default function useEmployees() {
-  const [errorStatus, setErrorStatus] = useState(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const abortControllerRef = useRef(null);
-
-  // Handle HTTP response and errors
-  const handleResponse = useCallback(
-    async (response) => {
-      if (response.status === 401) {
-        navigate("/login", {
-          state: {
-            previousUrl: location.pathname,
-          },
-        });
-        return null;
-      }
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    },
-    [navigate, location]
-  );
-
-  //http error handled gracefully
-  const createAbortController = () => {
-    abortControllerRef.current = new AbortController();
-    return abortControllerRef.current.signal;
-  };
+export function useEmployees() {
+  const queryClient = useQueryClient();
 
   // GET employees
-  const request = useCallback(async () => {
-    const signal = createAbortController();
-
-    try {
-      const response = await fetch(`${baseURL}/api/employees/`, {
-        method: "GET",
+  const {
+    data: employees,
+    error,
+    status,
+  } = useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const res = await fetch(`${baseURL}/api/employees/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("access"),
         },
-        signal,
       });
-      const result = await handleResponse(response);
-      if (result) {
-        return result.employees || [];
-      }
-    } catch (error) {
-      if (error.name === "AbortError") {
-      } else {
-        setErrorStatus(error.message);
-      }
-    }
-    return [];
-  }, [handleResponse]);
+      if (!res.ok) throw new Error("Failed to fetch customers");
+      return res.json();
+    },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
 
   // POST employee
-  const appendData = useCallback(
-    async (newData) => {
-      const signal = createAbortController();
-      try {
-        let body;
-        let headers = {
+  const createEmployee = useMutation({
+    mutationFn: async (newEmployee) => {
+      let temp;
+      let headers = {
+        Authorization: "Bearer " + localStorage.getItem("access"),
+      };
+      if (newEmployee.picture) {
+        temp = new FormData();
+        for (let key in newEmployee) {
+          temp.append(key, newEmployee[key]);
+        }
+      } else {
+        headers["Content-Type"] = "application/json";
+      }
+      const res = await fetch(`${baseURL}/api/employees/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("access"),
-        };
-        if (newData.picture) {
-          body = new FormData();
-          for (let key in newData) {
-            body.append(key, newData[key]);
-          }
-        } else {
-          headers["Content-Type"] = "application/json";
-          body = JSON.stringify(newData);
-        }
-        const response = await fetch(`${baseURL}/api/employees/`, {
-          method: "POST",
-          headers,
-          body,
-          signal,
-        });
-
-        const result = await handleResponse(response);
-
-        if (result) {
-          return result.employee;
-        }
-      } catch (error) {
-        if (error.name === "AbortError") {
-        } else {
-          setErrorStatus(error.message);
-        }
-      }
+        },
+        body: JSON.stringify(temp),
+      });
+      if (!res.ok) throw new Error("Failed to create employee");
+      return res.json();
     },
-    [handleResponse]
-  );
+    onSuccess: () => {
+      queryClient.invalidateQueries(["employees"]); // Refresh the employee list
+    },
+  });
 
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
+  // PATCH update employee
+  const updateEmployee = useMutation({
+    mutationFn: async ({ id, updatedData }) => {
+      let temp;
+      let headers = {
+        Authorization: "Bearer " + localStorage.getItem("access"),
+      };
+
+      if (updatedData.picture) {
+        temp = new FormData();
+        for (let key in updatedData) {
+          temp.append(key, updatedData[key]);
+        }
+      } else {
+        headers["Content-Type"] = "application/json";
       }
-    };
-  }, []);
 
-  return { request, appendData, errorStatus }; //{} instead of [] lets you have properties with the same names and allows destructuring
-  //less chance of typing incorrectly
+      const res = await fetch(`${baseURL}/api/employees/${id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+        body: JSON.stringify(temp),
+      });
+      if (!res.ok) throw new Error("Failed to update employee");
+      return res.json();
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries("employees");
+      queryClient.invalidateQueries({ queryKey: ["employee", id] });
+    },
+  });
+
+  // DELETE employee
+  const deleteEmployee = useMutation({
+    mutationFn: async (id) => {
+      await fetch(`${baseURL}/api/employees/${id}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["employees"]); // Refresh the list
+    },
+  });
+
+  return {
+    employees,
+    createEmployee,
+    updateEmployee,
+    deleteEmployee,
+    error,
+    status,
+  };
+}
+
+export function useEmployee(id) {
+  const navigate = useNavigate();
+
+  const {
+    data: employee,
+    error,
+    status,
+  } = useQuery({
+    queryKey: ["employee", id],
+    queryFn: async () => {
+      const res = await fetch(`${baseURL}/api/employees/${id}/`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("access"),
+        },
+      });
+      if (res.status === 401) {
+        navigate("/employees", {
+          state: { previousUrl: `/employees/${id}` },
+        });
+        throw new Error("Unauthorized");
+      }
+      if (!res.ok) throw new Error("Failed to fetch employee");
+
+      return res.json();
+    },
+  });
+  return { data: employee, error, status };
 }
