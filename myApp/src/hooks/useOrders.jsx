@@ -6,11 +6,7 @@ export function useOrders(customerId, orderId) {
   const queryClient = useQueryClient();
 
   // GET customers
-  const {
-    data: orders,
-    error,
-    status,
-  } = useQuery({
+  const { data, error, status } = useQuery({
     queryKey: ["orders"],
     queryFn: async () => {
       const res = await fetch(
@@ -23,7 +19,8 @@ export function useOrders(customerId, orderId) {
         }
       );
       if (!res.ok) throw new Error("Failed to fetch orders");
-      return res.json();
+      const result = await res.json();
+      return result.orders;
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
@@ -43,7 +40,8 @@ export function useOrders(customerId, orderId) {
         }
       );
       if (!res.ok) throw new Error("Failed to create order");
-      return res.json();
+      const result = await res.json();
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["orders"]); // Refresh the customer list
@@ -65,7 +63,8 @@ export function useOrders(customerId, orderId) {
         }
       );
       if (!res.ok) throw new Error("Failed to update order");
-      return res.json();
+      const result = await res.json();
+      return result.order;
     },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries(["order", id]);
@@ -88,18 +87,14 @@ export function useOrders(customerId, orderId) {
     },
   });
 
-  return { orders, createOrder, updateOrder, deleteOrder, error, status };
+  return { data, createOrder, updateOrder, deleteOrder, error, status };
 }
 
 export function useOrder(customerId, orderId) {
   const navigate = useNavigate();
 
   // GET order
-  const {
-    data: order,
-    error,
-    status,
-  } = useQuery({
+  const { data, error, status } = useQuery({
     queryKey: ["order", orderId],
     queryFn: async () => {
       const res = await fetch(
@@ -118,8 +113,9 @@ export function useOrder(customerId, orderId) {
         throw new Error("Unauthorized");
       }
       if (!res.ok) throw new Error("Failed to fetch order");
-      return res.json();
+      const result = await res.json();
+      return result.order;
     },
   });
-  return { order, error, status };
+  return { data, error, status };
 }

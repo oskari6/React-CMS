@@ -7,18 +7,16 @@ export default function Customer() {
   const { id } = useParams();
   const [customer, setCustomer] = useState(null);
   const [changed, setChanged] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
 
   const { data, error, status } = useCustomer(id);
-  const { updateCustomer, deleteCustomer, error2, status2 } = useCustomers(id);
+  const { updateCustomer, deleteCustomer } = useCustomers();
 
   useEffect(() => {
     if (data) {
-      setCustomer(data.customer);
-      setLoading(false); // Data has been loaded
+      setCustomer(data);
     }
-  }, [customer]);
+  }, [data]);
 
   const handleInputChange = (field, value) => {
     setCustomer((prev) => {
@@ -31,24 +29,27 @@ export default function Customer() {
     setSaved(false);
   };
 
-  if (loading) {
-    return <p>Loading customer data...</p>; // Show loading message until tempCustomer is set
+  if (status === "loading") {
+    return <p>Loading customer data...</p>;
   }
 
   return (
     <div className="p-3">
       {error ? <div className="text-red-500">Error: {error}</div> : null}
-      {!data ? (
+      {!customer ? (
         <>
           <NotFound />
           <p>The customer with the id {id} was not found</p>
         </>
       ) : (
         <div>
+          <div className="h-[50px]">
+            <h2 className="font-semibold">Customer: {customer.name}</h2>
+          </div>
           <form
             className="w-full max-w-sm"
             id="customer"
-            onSubmit={updateCustomer}
+            onSubmit={updateCustomer.mutate}
           >
             <div className="md:flex md:items-center mb-6">
               <div className="md:w-1/4">

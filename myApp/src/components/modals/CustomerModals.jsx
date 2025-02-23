@@ -1,39 +1,39 @@
 import { useState } from "react";
 import Modal from "react-bootstrap/Modal";
 
-export default function AddCustomer(props) {
+export default function AddCustomer({ visible, onClose, createCustomer }) {
   const [name, setName] = useState("");
   const [industry, setIndustry] = useState("");
 
-  const handleClose = () => props.toggleShow();
+  const handleNew = (e) => {
+    e.preventDefault();
+    const customer = {
+      name: name,
+      industry: industry,
+    };
+    createCustomer(customer);
+    setName("");
+    setIndustry("");
+    onClose();
+  };
 
   return (
     <>
       <div className="flex justify-center items-center">
         <button
-          onClick={props.toggleShow}
+          onClick={() => onClose()}
           className="block m-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded "
         >
           + Add Customer
         </button>
       </div>
-      <Modal
-        show={props.show}
-        onHide={handleClose}
-        backdrop="static"
-        keyboard={false}
-      >
+      <Modal show={visible} onHide={onClose} backdrop="static" keyboard={false}>
         <Modal.Header closeButton>
           <Modal.Title>Add Customer</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setName("");
-              setIndustry("");
-              props.newCustomer(name, industry);
-            }}
+            onSubmit={(e) => handleNew(e)}
             id="editmodal"
             className="w-full max-w-sm"
           >
@@ -86,7 +86,7 @@ export default function AddCustomer(props) {
         <Modal.Footer>
           <button
             className="bg-red-400 hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
-            onClick={handleClose}
+            onClick={onClose}
           >
             Close
           </button>

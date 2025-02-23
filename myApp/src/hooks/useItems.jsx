@@ -3,11 +3,7 @@ import { baseURL } from "../Shared";
 
 export function useItems() {
   // GET items
-  const {
-    data: items,
-    error,
-    status,
-  } = useQuery({
+  const { data, error, status } = useQuery({
     queryKey: ["customers"],
     queryFn: async () => {
       const res = await fetch(`${baseURL}/api/items/`, {
@@ -17,10 +13,11 @@ export function useItems() {
         },
       });
       if (!res.ok) throw new Error("Failed to fetch customers");
-      return res.json();
+      const result = await res.json();
+      return result.items;
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  return { items, error, status };
+  return { data, error, status };
 }

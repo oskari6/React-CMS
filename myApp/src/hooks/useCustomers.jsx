@@ -6,11 +6,7 @@ export function useCustomers() {
   const queryClient = useQueryClient();
 
   // GET customers
-  const {
-    data: customers,
-    error,
-    status,
-  } = useQuery({
+  const { data, error, status } = useQuery({
     queryKey: ["customers"],
     queryFn: async () => {
       const res = await fetch(`${baseURL}/api/customers/`, {
@@ -20,7 +16,8 @@ export function useCustomers() {
         },
       });
       if (!res.ok) throw new Error("Failed to fetch customers");
-      return res.json();
+      const result = await res.json();
+      return result.customers;
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
@@ -37,7 +34,8 @@ export function useCustomers() {
         body: JSON.stringify(newCustomer),
       });
       if (!res.ok) throw new Error("Failed to create customer");
-      return res.json();
+      const result = await res.json();
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["customers"]); // Refresh the customer list
@@ -56,7 +54,8 @@ export function useCustomers() {
         body: JSON.stringify(updatedData),
       });
       if (!res.ok) throw new Error("Failed to update customer");
-      return res.json();
+      const result = await res.json();
+      return result.customer;
     },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries(["customer", id]); // Refresh single customer
@@ -80,7 +79,7 @@ export function useCustomers() {
   });
 
   return {
-    customers,
+    data,
     createCustomer,
     updateCustomer,
     deleteCustomer,
@@ -93,11 +92,7 @@ export function useCustomer(id) {
   const navigate = useNavigate();
 
   // GET customer
-  const {
-    data: customer,
-    error,
-    status,
-  } = useQuery({
+  const { data, error, status } = useQuery({
     queryKey: ["customer", id],
     queryFn: async () => {
       const res = await fetch(`${baseURL}/api/customers/${id}/`, {
@@ -113,8 +108,9 @@ export function useCustomer(id) {
         throw new Error("Unauthorized");
       }
       if (!res.ok) throw new Error("Failed to fetch customer");
-      return res.json();
+      const result = await res.json();
+      return result.customer;
     },
   });
-  return { customer, error, status };
+  return { data, error, status };
 }

@@ -6,11 +6,7 @@ export function useEmployees() {
   const queryClient = useQueryClient();
 
   // GET employees
-  const {
-    data: employees,
-    error,
-    status,
-  } = useQuery({
+  const { data, error, status } = useQuery({
     queryKey: ["employees"],
     queryFn: async () => {
       const res = await fetch(`${baseURL}/api/employees/`, {
@@ -20,7 +16,8 @@ export function useEmployees() {
         },
       });
       if (!res.ok) throw new Error("Failed to fetch customers");
-      return res.json();
+      const result = await res.json();
+      return result.employees;
     },
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
@@ -28,28 +25,27 @@ export function useEmployees() {
   // POST employee
   const createEmployee = useMutation({
     mutationFn: async (newEmployee) => {
-      let temp;
+      let body;
       let headers = {
         Authorization: "Bearer " + localStorage.getItem("access"),
       };
       if (newEmployee.picture) {
-        temp = new FormData();
+        body = new FormData();
         for (let key in newEmployee) {
-          temp.append(key, newEmployee[key]);
+          body.append(key, newEmployee[key]);
         }
       } else {
         headers["Content-Type"] = "application/json";
+        body = JSON.stringify(newEmployee);
       }
       const res = await fetch(`${baseURL}/api/employees/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("access"),
-        },
-        body: JSON.stringify(temp),
+        headers,
+        body,
       });
       if (!res.ok) throw new Error("Failed to create employee");
-      return res.json();
+      const result = await res.json();
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["employees"]); // Refresh the employee list
@@ -82,7 +78,8 @@ export function useEmployees() {
         body: JSON.stringify(temp),
       });
       if (!res.ok) throw new Error("Failed to update employee");
-      return res.json();
+      const result = await res.json();
+      return result.employee;
     },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries("employees");
@@ -106,7 +103,7 @@ export function useEmployees() {
   });
 
   return {
-    employees,
+    data,
     createEmployee,
     updateEmployee,
     deleteEmployee,
@@ -118,11 +115,7 @@ export function useEmployees() {
 export function useEmployee(id) {
   const navigate = useNavigate();
 
-  const {
-    data: employee,
-    error,
-    status,
-  } = useQuery({
+  const { data, error, status } = useQuery({
     queryKey: ["employee", id],
     queryFn: async () => {
       const res = await fetch(`${baseURL}/api/employees/${id}/`, {
@@ -138,9 +131,9 @@ export function useEmployee(id) {
         throw new Error("Unauthorized");
       }
       if (!res.ok) throw new Error("Failed to fetch employee");
-
-      return res.json();
+      const result = await res.json();
+      return result.employee;
     },
   });
-  return { data: employee, error, status };
+  return { data, error, status };
 }

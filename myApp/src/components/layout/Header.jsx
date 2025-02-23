@@ -35,14 +35,14 @@ export default function Header() {
     { name: "item1", href: "/item1" },
     { name: "item2", href: "/item2" },
     { name: "item3", href: "/item3" },
-    { name: "item3", href: "/item3" },
-    { name: "item3", href: "/item3" },
-    { name: "item3", href: "/item3" },
-    { name: "item3", href: "/item3" },
-    { name: "item3", href: "/item3" },
-    { name: "item3", href: "/item3" },
-    { name: "item3", href: "/item3" },
-    { name: "item3", href: "/item3" },
+    { name: "item4", href: "/item4" },
+    { name: "item5", href: "/item5" },
+    { name: "item6", href: "/item6" },
+    { name: "item7", href: "/item7" },
+    { name: "item8", href: "/item8" },
+    { name: "item9", href: "/item9" },
+    { name: "item10", href: "/item10" },
+    { name: "item11", href: "/item11" },
   ];
 
   const handleLogoutClick = (e) => {

@@ -47,11 +47,25 @@ export function EmployeeModal({ employee, updateEmployee, deleteEmployee }) {
   );
 }
 
-export function AddEmployee({ handleNew, visible, onClose }) {
+export function AddEmployee({ createEmployee, visible, onClose }) {
   const [fullname, setFullname] = useState("");
   const [role, setRole] = useState("");
   const [img, setImg] = useState(null);
 
+  const handleNew = (e) => {
+    e.preventDefault();
+    const employee = {
+      full_name: fullname,
+      role: role,
+      picture: img,
+    };
+    
+    createEmployee(employee);
+    setFullname("");
+    setRole("");
+    setImg(null);
+    onClose();
+  };
   return (
     <div>
       <Modal show={visible} onHide={onClose} backdrop="static" keyboard={false}>
@@ -60,17 +74,7 @@ export function AddEmployee({ handleNew, visible, onClose }) {
         </Modal.Header>
         <Modal.Body>
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleNew({
-                full_name: fullname,
-                role: role,
-                picture: img,
-              });
-              setFullname("");
-              setRole("");
-              setImg(null);
-            }}
+            onSubmit={(e) => handleNew(e)}
             id="editmodal"
             className="w-full max-w-sm"
             encType="multipart/form-data"
@@ -162,7 +166,7 @@ export function AddEmployee({ handleNew, visible, onClose }) {
 }
 
 export function EditEmployee(props) {
-  const [fullname, setFullname] = useState(props.name);
+  const [fullname, setFullname] = useState(props.full_name);
   const [role, setRole] = useState(props.role);
   const [img, setImg] = useState(props.img);
   const [show, setShow] = useState(false);

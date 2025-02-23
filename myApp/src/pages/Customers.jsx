@@ -13,7 +13,7 @@ export default function Customers() {
     if (data) {
       setCustomers(data);
     }
-  });
+  }, [data]);
 
   if (status === "loading") {
     return <div>Loading...</div>;
@@ -40,9 +40,9 @@ export default function Customers() {
           })
         : null}
       <AddCustomer
-        newCustomer={createCustomer}
-        show={visible}
-        toggleShow={() => setVisible(!visible)}
+        createCustomer={createCustomer.mutate}
+        visible={visible}
+        onClose={() => setVisible(!visible)}
       />
     </div>
   );

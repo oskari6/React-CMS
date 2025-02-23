@@ -1,4 +1,3 @@
-import "../index.css";
 import { useState, useEffect } from "react";
 import {
   AddEmployee,
@@ -9,7 +8,6 @@ import { useEmployees } from "../hooks/useEmployees";
 
 export default function Employees() {
   const [visible, setVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState([]);
 
   const {
@@ -41,8 +39,8 @@ export default function Employees() {
               <EmployeeModal
                 key={employee.id}
                 employee={employee}
-                onUpdate={updateEmployee}
-                onDelete={deleteEmployee}
+                onUpdate={updateEmployee.mutate}
+                onDelete={deleteEmployee.mutate}
               />
             ))
           : null}
@@ -57,7 +55,7 @@ export default function Employees() {
       </div>
       {visible && (
         <AddEmployee
-          handleNew={createEmployee}
+          createEmployee={createEmployee.mutate}
           visible={visible}
           onClose={() => setVisible(false)}
         />
