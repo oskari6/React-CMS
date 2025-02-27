@@ -42,7 +42,11 @@ function TaskBar({ onNavigate }) {
     { name: "Users", href: "/dashboard-users" },
     { name: "Customers", href: "/dashboard-customers" },
     { name: "Employees", href: "/dashboard-employees" },
-    { name: "Products", href: "/dashboard-products" },
+    {
+      name: "Items",
+      component: <itemsDashboard />,
+      href: "/dashboard-statistics",
+    },
     { name: "Orders", href: "/dashboard-orders" },
     { name: "Mail", href: "/dashboard-mail" },
     { name: "Messages", href: "/dashboard-messages" },

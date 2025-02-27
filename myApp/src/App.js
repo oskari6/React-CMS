@@ -15,6 +15,7 @@ import Layout from "./components/layout/Layout";
 import Items from "./pages/Items";
 
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import CreateItem from "./pages/CreateItem";
 export const LoginContext = createContext();
 
 const queryClient = new QueryClient();
@@ -74,6 +75,7 @@ function App() {
               <Route path="customers/:id/orders" element={<Orders />} />
               <Route path="orders" element={<Orders />} />
               <Route path="items" element={<Items />} />
+              <Route path="create-item" element={<CreateItem />} />
               <Route path="dictionary" element={<Dictionary />} />
               <Route path="dictionary/:search" element={<Definition />} />
               <Route path="404" element={<NotFound />} />

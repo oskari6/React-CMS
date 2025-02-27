@@ -1,6 +1,3 @@
-users
-tester1: test
-
 # Startin the server for django
 
 - Start docker "net start com.docker.service" or desktop app
